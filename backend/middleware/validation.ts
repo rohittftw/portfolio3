@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { z, ZodError } from "zod";
+import { ZodError,ZodIssue } from "zod";
+import {z} from "zod";
 
 // Custom validation error response
 interface ValidationError {
@@ -7,9 +8,11 @@ interface ValidationError {
   message: string;
 }
 
+
+
 // Helper function to format Zod errors
-function formatZodError(error: ZodError): ValidationError[] {
-  return error.errors.map((err) => ({
+function formatZodError(error: ZodError<any>): ValidationError[] {
+  return error.errors.map((err:ZodIssue) => ({
     field: err.path.join('.'),
     message: err.message,
   }));

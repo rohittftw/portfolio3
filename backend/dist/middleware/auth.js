@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -50,76 +41,72 @@ function verifyToken(token) {
     }
 }
 // Authentication middleware
-function authenticateAdmin(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const authHeader = req.headers.authorization;
-            if (!authHeader || !authHeader.startsWith("Bearer ")) {
-                res.status(401).json({
-                    msg: "Access denied. No token provided or invalid format.",
-                    code: "NO_TOKEN"
-                });
-                return;
-            }
-            // Extract token
-            const token = authHeader.substring(7); // Remove "Bearer " prefix
-            // Verify token
-            const decoded = verifyToken(token);
-            if (!decoded) {
-                res.status(401).json({
-                    msg: "Invalid or expired token.",
-                    code: "INVALID_TOKEN"
-                });
-                return;
-            }
-            // Check if admin still exists in database
-            const admin = yield prisma_1.prisma.admin.findUnique({
-                where: { admin_id: decoded.admin_id },
-                select: { admin_id: true, username: true }
+async function authenticateAdmin(req, res, next) {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            res.status(401).json({
+                msg: "Access denied. No token provided or invalid format.",
+                code: "NO_TOKEN"
             });
-            if (!admin) {
-                res.status(401).json({
-                    msg: "Admin account not found.",
-                    code: "ADMIN_NOT_FOUND"
-                });
-                return;
-            }
-            // Add admin info to request object
-            req.admin = admin;
-            next();
+            return;
         }
-        catch (error) {
-            console.error("Authentication error:", error);
-            res.status(500).json({
-                msg: "Internal server error during authentication.",
-                code: "AUTH_ERROR"
+        // Extract token
+        const token = authHeader.substring(7); // Remove "Bearer " prefix
+        // Verify token
+        const decoded = verifyToken(token);
+        if (!decoded) {
+            res.status(401).json({
+                msg: "Invalid or expired token.",
+                code: "INVALID_TOKEN"
             });
+            return;
         }
-    });
+        // Check if admin still exists in database
+        const admin = await prisma_1.prisma.admin.findUnique({
+            where: { admin_id: decoded.admin_id },
+            select: { admin_id: true, username: true }
+        });
+        if (!admin) {
+            res.status(401).json({
+                msg: "Admin account not found.",
+                code: "ADMIN_NOT_FOUND"
+            });
+            return;
+        }
+        // Add admin info to request object
+        req.admin = admin;
+        next();
+    }
+    catch (error) {
+        console.error("Authentication error:", error);
+        res.status(500).json({
+            msg: "Internal server error during authentication.",
+            code: "AUTH_ERROR"
+        });
+    }
 }
 // Optional middleware to check if admin is authenticated but don't require it
-function optionalAuth(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const authHeader = req.headers.authorization;
-            if (authHeader && authHeader.startsWith("Bearer ")) {
-                const token = authHeader.substring(7);
-                const decoded = verifyToken(token);
-                if (decoded) {
-                    const admin = yield prisma_1.prisma.admin.findUnique({
-                        where: { admin_id: decoded.admin_id },
-                        select: { admin_id: true, username: true }
-                    });
-                    if (admin) {
-                        req.admin = admin;
-                    }
+async function optionalAuth(req, res, next) {
+    try {
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+            const token = authHeader.substring(7);
+            const decoded = verifyToken(token);
+            if (decoded) {
+                const admin = await prisma_1.prisma.admin.findUnique({
+                    where: { admin_id: decoded.admin_id },
+                    select: { admin_id: true, username: true }
+                });
+                if (admin) {
+                    req.admin = admin;
                 }
             }
-            next();
         }
-        catch (error) {
-            // Don't fail on optional auth errors, just continue without admin info
-            next();
-        }
-    });
+        next();
+    }
+    catch (error) {
+        // Don't fail on optional auth errors, just continue without admin info
+        next();
+    }
 }

@@ -96,9 +96,8 @@ const metricsMiddleware = (req, res, next) => {
     const start = Date.now();
     // Use the 'finish' event instead of overriding res.end
     res.on('finish', () => {
-        var _a;
         const duration = Date.now() - start;
-        const route = ((_a = req.route) === null || _a === void 0 ? void 0 : _a.path) || req.path;
+        const route = req.route?.path || req.path;
         exports.portfolioMetrics.incrementHttpRequests(req.method, route, res.statusCode);
         exports.portfolioMetrics.recordResponseTime(duration);
     });
