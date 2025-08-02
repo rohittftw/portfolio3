@@ -12,13 +12,14 @@ app.use(express.json());
 app.use(metricsMiddleware);
 
 
+const corsOptions = {
+  origin: "https://rohitdhawadkar.in",
+  credentials: true,
+};
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
 
 // Metrics endpoint (JSON format)
 app.get('/metrics', (req: Request, res: Response) => {

@@ -14,10 +14,12 @@ const app = (0, express_1.default)();
 app.use(express_1.default.json());
 // Add metrics middleware before other middleware
 app.use(metrics_1.metricsMiddleware);
-app.use((0, cors_1.default)({
-    origin: "http://localhost:5173",
+const corsOptions = {
+    origin: "https://rohitdhawadkar.in",
     credentials: true,
-}));
+};
+app.use((0, cors_1.default)(corsOptions));
+app.options("*", (0, cors_1.default)(corsOptions));
 // Metrics endpoint (JSON format)
 app.get('/metrics', (req, res) => {
     try {

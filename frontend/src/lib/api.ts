@@ -1,5 +1,5 @@
 // API configuration
-export const API_BASE_URL = "http://localhost:3000/api";
+export const API_BASE_URL = "https:rohitdhawadkar.in/api";
 
 // Admin user interface
 export interface AdminUser {
@@ -78,7 +78,7 @@ export const loginAdmin = async (username: string, password: string) => {
   return apiRequest<{
     msg: string;
     admin?: AdminUser;
-  }>("/admin/login", {
+  }>("https://rohitdhawadkar.in/api/admin/login", {
     method: "POST",
     body: JSON.stringify({ username, password }),
   });
