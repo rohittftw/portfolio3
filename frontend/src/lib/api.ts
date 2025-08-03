@@ -78,7 +78,7 @@ export const loginAdmin = async (username: string, password: string) => {
   return apiRequest<{
     msg: string;
     admin?: AdminUser;
-  }>("https://rohitdhawadkar.in/api/admin/login", {
+  }>("/admin/login", {
     method: "POST",
     body: JSON.stringify({ username, password }),
   });
