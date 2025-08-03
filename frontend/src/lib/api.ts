@@ -1,11 +1,12 @@
 // API configuration
 export const API_BASE_URL = "https:rohitdhawadkar.in/api";
-
+import axios from 'axios';
 // Admin user interface
 export interface AdminUser {
   admin_id: number;
   username: string;
 }
+
 interface Pagination {
   currentPage: number;
   totalPages: number;
@@ -74,15 +75,48 @@ export const adminAuth = {
 
 // API functions
 // Login function
-export const loginAdmin = async (username: string, password: string) => {
-  return apiRequest<{
-    msg: string;
-    admin?: AdminUser;
-  }>("/admin/login", {
-    method: "POST",
-    body: JSON.stringify({ username, password }),
-  });
-};
+ interface Admin {
+  admin_id: string;
+  username: string;
+}
+interface LoginResponse {
+  msg: string;
+  admin: Admin;
+  token: string;
+  expiresIn: string;
+}
+
+interface ErrorResponse {
+  message: string;
+  statusCode?: number;
+}
+
+  export const loginAdmin = async (username: string, password: string): Promise<LoginResponse> => {
+    try {
+      const response = await axios.post<LoginResponse>(
+        'https://rohitdhawadkar.in/api/admin/login', // Relative path if using proxy
+        { username, password },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true // For cookies if using them
+        }
+      );
+
+      // Store token securely (don't use localStorage for production)
+      localStorage.setItem('authToken', response.data.token);
+
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // Handle 4xx/5xx errors
+        const serverError = error.response?.data as { error?: string };
+        throw new Error(serverError?.error || 'Login failed');
+      }
+      throw new Error('Network error');
+    }
+  };
 
 // Logout function (client-side)
 export const logoutAdmin = (): void => {
