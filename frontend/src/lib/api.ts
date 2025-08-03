@@ -2,9 +2,9 @@
 export const API_BASE_URL = "https:rohitdhawadkar.in/api";
 import axios from 'axios';
 // Admin user interface
-export interface AdminUser {
-  admin_id: number;
-  username: string;
+interface Admin {
+ admin_id: string;
+ username: string;
 }
 
 interface Pagination {
@@ -47,7 +47,7 @@ export const apiRequest = async <T>(
 // Admin session management utilities
 export const adminAuth = {
   // Get current admin from localStorage
-  getCurrentAdmin: (): AdminUser | null => {
+  getCurrentAdmin: (): Admin | null => {
     try {
       const adminData = localStorage.getItem("admin");
       return adminData ? JSON.parse(adminData) : null;
@@ -58,7 +58,7 @@ export const adminAuth = {
   },
 
   // Set admin data in localStorage
-  setAdmin: (admin: AdminUser): void => {
+  setAdmin: (admin: Admin): void => {
     localStorage.setItem("admin", JSON.stringify(admin));
   },
 
@@ -75,10 +75,7 @@ export const adminAuth = {
 
 // API functions
 // Login function
- interface Admin {
-  admin_id: string;
-  username: string;
-}
+
 interface LoginResponse {
   msg: string;
   admin: Admin;
