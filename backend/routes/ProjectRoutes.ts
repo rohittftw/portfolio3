@@ -29,38 +29,34 @@ router.get("/GetAllProjects",
   asyncHandler(GetAllProjects)
 );
 router.get("/featured", asyncHandler(GetFeaturedProjects));
-router.get("/status/:status",
+router.get("/status/:id$",
   validateSchema(projectSchemas.byStatus),
   asyncHandler(GetProjectsByStatus)
 );
 router.get("/technologies", asyncHandler(GetProjectTechnologies));
-router.get("/slug/:slug",
+router.get("/slug/:slug$",
   validateSchema(projectSchemas.bySlug),
   asyncHandler(GetProjectBySlug)
 );
 
 // Protected admin routes (authentication required)
 router.post("/createProject",
-  // authenticateAdmin,
+  authenticateAdmin,
   validateSchema(projectSchemas.create),
   asyncHandler(CreateProject)
 );
-router.get("/admin",
-  authenticateAdmin,
-  validateSchema(projectSchemas.query),
-  asyncHandler(GetAllProjects)
-);
-router.get("/admin/:project_id",
+
+router.get("/:id$",
   authenticateAdmin,
   validateSchema(projectSchemas.byId),
   asyncHandler(GetProjectById)
 );
-router.put("/:project_id",
+router.put("/:id$",
   authenticateAdmin,
   validateSchema(projectSchemas.update),
   asyncHandler(UpdateProject)
 );
-router.delete("/:project_id",
+router.delete("/:id$",
   authenticateAdmin,
   validateSchema(projectSchemas.byId),
   asyncHandler(DeleteProject)

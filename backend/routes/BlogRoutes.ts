@@ -27,7 +27,7 @@ router.get("/getPublishedBlogs",
   asyncHandler(GetPublishedBlogs)
 );
 router.get("/tags", asyncHandler(GetBlogTags));
-router.get("/slug/:slug",
+router.get("/slug/:slug$",
   validateSchema(blogSchemas.bySlug),
   asyncHandler(GetBlogBySlug)
 );
@@ -38,22 +38,22 @@ router.post("/createBlog",
   validateSchema(blogSchemas.create),
   asyncHandler(CreateBlog)
 );
-router.get("/admin",
+router.get("/get-all-blogs",
   authenticateAdmin,
   validateSchema(blogSchemas.query),
   asyncHandler(GetAllBlogs)
 );
-router.get("/admin/:blog_id",
+router.get("/:id$",
   authenticateAdmin,
   validateSchema(blogSchemas.byId),
   asyncHandler(GetBlogById)
 );
-router.put("/:blog_id",
+router.put("/:id$",
   authenticateAdmin,
   validateSchema(blogSchemas.update),
   asyncHandler(UpdateBlog)
 );
-router.delete("/:blog_id",
+router.delete("/:id$",
   // authenticateAdmin,
   validateSchema(blogSchemas.byId),
   asyncHandler(DeleteBlog)

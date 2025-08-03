@@ -5,7 +5,7 @@ import { portfolioMetrics } from "../middleware/metrics";
 const router = express.Router();
 
 // Get all analytics data
-router.get('/', (req: Request, res: Response) => {
+router.get("/", (req: Request, res: Response) => {
   try {
     const metrics = portfolioMetrics.getMetrics();
     res.json(metrics);
@@ -15,7 +15,7 @@ router.get('/', (req: Request, res: Response) => {
 });
 
 // Track page views
-router.post('/pageview', (req: Request, res: Response) => {
+router.post("/pageview", (req: Request, res: Response) => {
   const { page } = req.body;
   if (page) {
     portfolioMetrics.recordPageView(page);
@@ -26,7 +26,7 @@ router.post('/pageview', (req: Request, res: Response) => {
 });
 
 // Track blog views
-router.post('/blog-view', (req: Request, res: Response) => {
+router.post("/blog-view", (req: Request, res: Response) => {
   const { blogId, blogTitle } = req.body;
   if (blogId && blogTitle) {
     portfolioMetrics.recordBlogView(blogId, blogTitle);
@@ -37,7 +37,7 @@ router.post('/blog-view', (req: Request, res: Response) => {
 });
 
 // Track project views
-router.post('/project-view', (req: Request, res: Response) => {
+router.post("/project-view", (req: Request, res: Response) => {
   const { projectId, projectName } = req.body;
   if (projectId && projectName) {
     portfolioMetrics.recordProjectView(projectId, projectName);

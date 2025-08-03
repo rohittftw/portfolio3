@@ -18,12 +18,12 @@ router.post("/register", validateSchema(adminSchemas.create), asyncHandler(Creat
 
 // Protected routes (authentication required)
 router.get("/profile", authenticateAdmin, asyncHandler(GetAdminProfile));
-router.put("/:Admin_id",
+router.put("/:id$",
   authenticateAdmin,
   validateSchema(adminSchemas.update),
   asyncHandler(UpdateAdmin)
 );
-router.delete("/:Admin_id",
+router.delete("/:id$",
   authenticateAdmin,
   validateSchema(adminSchemas.delete),
   asyncHandler(deleteAdmin)

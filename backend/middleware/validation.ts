@@ -136,7 +136,7 @@ export const adminSchemas = {
   // Admin update
   update: z.object({
     params: z.object({
-      Admin_id: z.string().regex(/^\d+$/, "Admin ID must be a valid number"),
+      id: z.string().regex(/^\d+$/, "Admin ID must be a valid number"),
     }),
     body: z.object({
       username: z.string()
@@ -153,7 +153,7 @@ export const adminSchemas = {
   // Admin deletion
   delete: z.object({
     params: z.object({
-      Admin_id: z.string().regex(/^\d+$/, "Admin ID must be a valid number"),
+      id: z.string().regex(/^\d+$/, "Admin ID must be a valid number"),
     }),
   }),
 };
@@ -183,7 +183,7 @@ export const blogSchemas = {
   // Blog update
   update: z.object({
     params: z.object({
-      blog_id: z.string().regex(/^\d+$/, "Blog ID must be a valid number"),
+      id: z.string().regex(/^\d+$/, "Blog ID must be a valid number"),
     }),
     body: z.object({
       title: z.string().min(1, "Title is required").max(200, "Title must not exceed 200 characters").optional(),
@@ -202,7 +202,7 @@ export const blogSchemas = {
   // Blog ID parameter
   byId: z.object({
     params: z.object({
-      blog_id: z.string().regex(/^\d+$/, "Blog ID must be a valid number"),
+      id: z.string().regex(/^\d+$/, "Blog ID must be a valid number"),
     }),
   }),
 
@@ -253,7 +253,7 @@ export const projectSchemas = {
   // Project update
   update: z.object({
     params: z.object({
-      project_id: z.string().regex(/^\d+$/, "Project ID must be a valid number"),
+      id: z.string().regex(/^\d+$/, "Project ID must be a valid number"),
     }),
     body: z.object({
       title: z.string().min(1, "Title is required").max(200, "Title must not exceed 200 characters").optional(),
@@ -275,7 +275,7 @@ export const projectSchemas = {
   // Project ID parameter
   byId: z.object({
     params: z.object({
-      project_id: z.string().regex(/^\d+$/, "Project ID must be a valid number"),
+      id: z.string().regex(/^\d+$/, "Project ID must be a valid number"),
     }),
   }),
 
