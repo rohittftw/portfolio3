@@ -125,7 +125,7 @@ exports.adminSchemas = {
     // Admin update
     update: zod_2.z.object({
         params: zod_2.z.object({
-            Admin_id: zod_2.z.string().regex(/^\d+$/, "Admin ID must be a valid number"),
+            id: zod_2.z.string().regex(/^\d+$/, "Admin ID must be a valid number"),
         }),
         body: zod_2.z.object({
             username: zod_2.z.string()
@@ -141,7 +141,7 @@ exports.adminSchemas = {
     // Admin deletion
     delete: zod_2.z.object({
         params: zod_2.z.object({
-            Admin_id: zod_2.z.string().regex(/^\d+$/, "Admin ID must be a valid number"),
+            id: zod_2.z.string().regex(/^\d+$/, "Admin ID must be a valid number"),
         }),
     }),
 };
@@ -169,7 +169,7 @@ exports.blogSchemas = {
     // Blog update
     update: zod_2.z.object({
         params: zod_2.z.object({
-            blog_id: zod_2.z.string().regex(/^\d+$/, "Blog ID must be a valid number"),
+            id: zod_2.z.string().regex(/^\d+$/, "Blog ID must be a valid number"),
         }),
         body: zod_2.z.object({
             title: zod_2.z.string().min(1, "Title is required").max(200, "Title must not exceed 200 characters").optional(),
@@ -187,7 +187,7 @@ exports.blogSchemas = {
     // Blog ID parameter
     byId: zod_2.z.object({
         params: zod_2.z.object({
-            blog_id: zod_2.z.string().regex(/^\d+$/, "Blog ID must be a valid number"),
+            id: zod_2.z.string().regex(/^\d+$/, "Blog ID must be a valid number"),
         }),
     }),
     // Blog slug parameter
@@ -234,7 +234,7 @@ exports.projectSchemas = {
     // Project update
     update: zod_2.z.object({
         params: zod_2.z.object({
-            project_id: zod_2.z.string().regex(/^\d+$/, "Project ID must be a valid number"),
+            id: zod_2.z.string().regex(/^\d+$/, "Project ID must be a valid number"),
         }),
         body: zod_2.z.object({
             title: zod_2.z.string().min(1, "Title is required").max(200, "Title must not exceed 200 characters").optional(),
@@ -255,7 +255,7 @@ exports.projectSchemas = {
     // Project ID parameter
     byId: zod_2.z.object({
         params: zod_2.z.object({
-            project_id: zod_2.z.string().regex(/^\d+$/, "Project ID must be a valid number"),
+            id: zod_2.z.string().regex(/^\d+$/, "Project ID must be a valid number"),
         }),
     }),
     // Project slug parameter

@@ -17,16 +17,13 @@ function asyncHandler(fn) {
 // Public routes (no authentication required)
 router.get("/GetAllProjects", asyncHandler(ProjectController_1.GetAllProjects));
 router.get("/featured", asyncHandler(ProjectController_1.GetFeaturedProjects));
-router.get("/status/:status", (0, validation_1.validateSchema)(validation_1.projectSchemas.byStatus), asyncHandler(ProjectController_1.GetProjectsByStatus));
+router.get("/status/:id$", (0, validation_1.validateSchema)(validation_1.projectSchemas.byStatus), asyncHandler(ProjectController_1.GetProjectsByStatus));
 router.get("/technologies", asyncHandler(ProjectController_1.GetProjectTechnologies));
-router.get("/slug/:slug", (0, validation_1.validateSchema)(validation_1.projectSchemas.bySlug), asyncHandler(ProjectController_1.GetProjectBySlug));
+router.get("/slug/:slug$", (0, validation_1.validateSchema)(validation_1.projectSchemas.bySlug), asyncHandler(ProjectController_1.GetProjectBySlug));
 // Protected admin routes (authentication required)
-router.post("/createProject", 
-// authenticateAdmin,
-(0, validation_1.validateSchema)(validation_1.projectSchemas.create), asyncHandler(ProjectController_1.CreateProject));
-router.get("/admin", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.projectSchemas.query), asyncHandler(ProjectController_1.GetAllProjects));
-router.get("/admin/:project_id", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.projectSchemas.byId), asyncHandler(ProjectController_1.GetProjectById));
-router.put("/:project_id", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.projectSchemas.update), asyncHandler(ProjectController_1.UpdateProject));
-router.delete("/:project_id", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.projectSchemas.byId), asyncHandler(ProjectController_1.DeleteProject));
+router.post("/createProject", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.projectSchemas.create), asyncHandler(ProjectController_1.CreateProject));
+router.get("/:id$", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.projectSchemas.byId), asyncHandler(ProjectController_1.GetProjectById));
+router.put("/:id$", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.projectSchemas.update), asyncHandler(ProjectController_1.UpdateProject));
+router.delete("/:id$", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.projectSchemas.byId), asyncHandler(ProjectController_1.DeleteProject));
 router.post("/reorder", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.projectSchemas.reorder), asyncHandler(ProjectController_1.ReorderProjects));
 exports.default = router;

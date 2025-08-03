@@ -7,7 +7,7 @@ const express_1 = __importDefault(require("express"));
 const metrics_1 = require("../middleware/metrics");
 const router = express_1.default.Router();
 // Get all analytics data
-router.get('/', (req, res) => {
+router.get("/", (req, res) => {
     try {
         const metrics = metrics_1.portfolioMetrics.getMetrics();
         res.json(metrics);
@@ -17,7 +17,7 @@ router.get('/', (req, res) => {
     }
 });
 // Track page views
-router.post('/pageview', (req, res) => {
+router.post("/pageview", (req, res) => {
     const { page } = req.body;
     if (page) {
         metrics_1.portfolioMetrics.recordPageView(page);
@@ -28,7 +28,7 @@ router.post('/pageview', (req, res) => {
     }
 });
 // Track blog views
-router.post('/blog-view', (req, res) => {
+router.post("/blog-view", (req, res) => {
     const { blogId, blogTitle } = req.body;
     if (blogId && blogTitle) {
         metrics_1.portfolioMetrics.recordBlogView(blogId, blogTitle);
@@ -39,7 +39,7 @@ router.post('/blog-view', (req, res) => {
     }
 });
 // Track project views
-router.post('/project-view', (req, res) => {
+router.post("/project-view", (req, res) => {
     const { projectId, projectName } = req.body;
     if (projectId && projectName) {
         metrics_1.portfolioMetrics.recordProjectView(projectId, projectName);

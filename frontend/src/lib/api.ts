@@ -91,7 +91,7 @@ interface ErrorResponse {
   export const loginAdmin = async (username: string, password: string): Promise<LoginResponse> => {
     try {
       const response = await axios.post<LoginResponse>(
-        'https://rohitdhawadkar.in/api/admin/login', // Relative path if using proxy
+        '/api/admin/login', // Relative path if using proxy
         { username, password },
         {
           headers: {

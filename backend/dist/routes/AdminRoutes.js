@@ -19,6 +19,6 @@ router.post("/login", (0, validation_1.validateSchema)(validation_1.adminSchemas
 router.post("/register", (0, validation_1.validateSchema)(validation_1.adminSchemas.create), asyncHandler(AdminController_1.CreateAdmin));
 // Protected routes (authentication required)
 router.get("/profile", auth_1.authenticateAdmin, asyncHandler(AdminController_1.GetAdminProfile));
-router.put("/:Admin_id", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.adminSchemas.update), asyncHandler(AdminController_1.UpdateAdmin));
-router.delete("/:Admin_id", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.adminSchemas.delete), asyncHandler(AdminController_1.deleteAdmin));
+router.put("/:id$", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.adminSchemas.update), asyncHandler(AdminController_1.UpdateAdmin));
+router.delete("/:id$", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.adminSchemas.delete), asyncHandler(AdminController_1.deleteAdmin));
 exports.default = router;

@@ -17,15 +17,15 @@ function asyncHandler(fn) {
 // Public routes (no authentication required)
 router.get("/getPublishedBlogs", asyncHandler(BlogController_1.GetPublishedBlogs));
 router.get("/tags", asyncHandler(BlogController_1.GetBlogTags));
-router.get("/slug/:slug", (0, validation_1.validateSchema)(validation_1.blogSchemas.bySlug), asyncHandler(BlogController_1.GetBlogBySlug));
+router.get("/slug/:slug$", (0, validation_1.validateSchema)(validation_1.blogSchemas.bySlug), asyncHandler(BlogController_1.GetBlogBySlug));
 // Protected admin routes (authentication required)
 router.post("/createBlog", 
 // authenticateAdmin,
 (0, validation_1.validateSchema)(validation_1.blogSchemas.create), asyncHandler(BlogController_1.CreateBlog));
-router.get("/admin", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.blogSchemas.query), asyncHandler(BlogController_1.GetAllBlogs));
-router.get("/admin/:blog_id", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.blogSchemas.byId), asyncHandler(BlogController_1.GetBlogById));
-router.put("/:blog_id", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.blogSchemas.update), asyncHandler(BlogController_1.UpdateBlog));
-router.delete("/:blog_id", 
+router.get("/get-all-blogs", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.blogSchemas.query), asyncHandler(BlogController_1.GetAllBlogs));
+router.get("/:id$", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.blogSchemas.byId), asyncHandler(BlogController_1.GetBlogById));
+router.put("/:id$", auth_1.authenticateAdmin, (0, validation_1.validateSchema)(validation_1.blogSchemas.update), asyncHandler(BlogController_1.UpdateBlog));
+router.delete("/:id$", 
 // authenticateAdmin,
 (0, validation_1.validateSchema)(validation_1.blogSchemas.byId), asyncHandler(BlogController_1.DeleteBlog));
 exports.default = router;
