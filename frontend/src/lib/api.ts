@@ -1,5 +1,5 @@
 // API configuration
-export const API_BASE_URL = "https:rohitdhawadkar.in/api";
+export const API_BASE_URL = "/api";
 import axios from 'axios';
 // Admin user interface
 interface Admin {
@@ -172,7 +172,7 @@ export const createBlog = async (
   },
   jwtToken: string
 ) => {
-  const response = await fetch("http://localhost:3000/api/blogs/createBlog", {
+  const response = await fetch("/api/blogs/createBlog", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -202,7 +202,7 @@ export interface BlogData {
 
 
 export const getBlogs = async (): Promise<BlogApiResponse> => {
-  const response = await fetch("http://localhost:3000/api/blogs/getPublishedBlogs", {
+  const response = await fetch("/api/blogs/getPublishedBlogs", {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });
@@ -217,7 +217,7 @@ export const getBlogs = async (): Promise<BlogApiResponse> => {
 
 
 export const getBlogById = async (id: string) => {
-  const response = await fetch(`http://localhost:3000/api/blogs/${id}`, {
+  const response = await fetch(`api/blogs/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -246,7 +246,7 @@ export const updateBlog = async (
   },
   jwtToken: string
 ) => {
-  const response = await fetch(`http://localhost:3000/api/blogs/${id}`, {
+  const response = await fetch(`/api/blogs/${id}`, {
     method: "PUT", // or PATCH depending on backend
     headers: {
       "Content-Type": "application/json",
@@ -263,7 +263,7 @@ export const updateBlog = async (
   return data;
 };
 export const deleteBlog = async (id: string, jwtToken: string) => {
-  const response = await fetch(`http://localhost:3000/api/blogs/${id}`, {
+  const response = await fetch(`api/blogs/${id}`, {
     method: "DELETE",
     headers: {
       "Authorization": `Bearer ${jwtToken}`,
@@ -304,7 +304,7 @@ interface ProjectApiResponse {
   pagination: Pagination;
 }
 export const getProjects = async (): Promise<ProjectApiResponse> => {
-  const response = await fetch("http://localhost:3000/api/projects/GetAllProjects", {
+  const response = await fetch("/api/projects/GetAllProjects", {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });
