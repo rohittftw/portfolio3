@@ -11,16 +11,16 @@ interface LoginFormData {
   password: string;
 }
 
-interface AdminUser {
-  admin_id: number;  // Admin's unique ID
-  username: string;   // Admin's username
+interface Admin {
+  admin_id: string;
+  username: string;
 }
 
-interface AdminResponse {
+interface LoginResponse {
   msg: string;
-  admin?: AdminUser;
-  token?: string;  // Make token optional
-  expiresIn?: string;  // Make expiresIn optional
+  admin: Admin;
+  token: string;
+  expiresIn: string;
 }
 
 export const Login = (): JSX.Element => {
@@ -89,7 +89,7 @@ export const Login = (): JSX.Element => {
     setError(null);
 
     try {
-      const response: AdminResponse = await loginAdmin(
+      const response: LoginResponse = await loginAdmin(
         formData.username.trim(),
         formData.password
       );
