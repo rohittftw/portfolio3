@@ -1,9 +1,19 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { Navbar } from "../../components/ui/Navbar";
 import resume from '../../public/Resume_Rohit_Dhawadkar.pdf';
+import { Footer } from "../../components/ui/Footer";
 
 export const Resume = (): JSX.Element => {
+  // Function to handle download
+  const handleDownload = () => {
+    const link = document.createElement('a');
+    link.href = resume;
+    link.download = 'Resume_Rohit_Dhawadkar.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-[#f4f2ee]">
       {/* Navbar - Responsive */}
@@ -22,19 +32,17 @@ export const Resume = (): JSX.Element => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3">
             {/* Download/View buttons - Mobile friendly */}
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-              <a
-                href="/path-to-your-resume.pdf" // Replace with your actual resume PDF path
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={handleDownload}
                 className="inline-flex items-center justify-center bg-[#3b3a39] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium text-sm sm:text-base shadow hover:bg-[#232221] transition-colors min-h-[44px]"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Download PDF
-              </a>
+              </button>
               <a
-                href="/path-to-your-resume.pdf" // Replace with your actual resume PDF path
+                href={resume}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center bg-white text-[#3b3a39] px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium text-sm sm:text-base border border-[#dfdeda] shadow hover:bg-[#f9f8f6] transition-colors min-h-[44px]"
@@ -46,28 +54,17 @@ export const Resume = (): JSX.Element => {
                 View in New Tab
               </a>
             </div>
-
-            {/* File info - Mobile responsive */}
-            <div className="text-xs sm:text-sm text-[#6e6d6b] text-center sm:text-right">
-              <p>Last updated: January 2025</p>
-              <p className="hidden sm:block">PDF • 2 pages</p>
-            </div>
           </div>
 
           {/* Resume Viewer - Responsive height and styling */}
           <div className="w-full bg-white border border-[#dfdeda] rounded-lg shadow-lg overflow-hidden">
             {/* Mobile: Shorter height, Desktop: Taller */}
             <div className="h-[500px] sm:h-[700px] lg:h-[800px] flex items-center justify-center bg-gray-50">
-              {/* Placeholder content - Replace with actual PDF embed */}
-
-
-
               <iframe
                 src={resume}
                 className="w-full h-full border-0"
                 title="Resume PDF"
               />
-
             </div>
           </div>
 
@@ -81,9 +78,7 @@ export const Resume = (): JSX.Element => {
       </main>
 
       {/* Footer - Responsive */}
-      <footer className="w-full bg-white border-t border-[#dfdeda] py-3 sm:py-4 px-4 sm:px-8 text-center text-[#6e6d6b] text-xs sm:text-sm">
-        © {new Date().getFullYear()} Rohit — Backend Developer.
-      </footer>
+      <Footer/>
     </div>
   );
 };

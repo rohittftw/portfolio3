@@ -3,6 +3,7 @@ import { useAnalytics } from '../../hooks/useAnalytics';
 import { usePageTracking } from '../../hooks/usePageTracking';
 import { Navbar } from '../../components/ui/Navbar'; // Import the separate Navbar component
 import pfp from "../../public/pfp.png";
+import { Footer } from "../../components/ui/Footer";
 
 // To adjust the profile picture's position, change the objectPosition value below.
 // For example: 'center', 'top', 'bottom', 'left', 'right', 'center top', etc.
@@ -15,10 +16,10 @@ export const Hero = (): JSX.Element => {
 
   // Social media links - update these with your actual URLs
   const socialLinks = {
-    github: "https://github.com/yourusername",
-    leetcode: "https://leetcode.com/yourusername",
-    twitter: "https://x.com/yourusername",
-    linkedin: "https://linkedin.com/in/yourusername"
+    github: "https://github.com/rohittftw",
+    leetcode: "https://leetcode.com/rohittftw",
+    twitter: "https://x.com/rohitttftw",
+    linkedin: "https://linkedin.com/in/rohitdhawadkar"
   };
 
   return (
@@ -57,7 +58,7 @@ export const Hero = (): JSX.Element => {
             href={socialLinks.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-12 h-12 sm:w-14 sm:h-14 bg-white border-2 border-black rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all duration-200 shadow-lg group"
+            className="w-12 h-12 sm:w-14 sm:h-14 bg-#6e6d6b border-2 border-black rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all duration-200 shadow-lg group"
             title="GitHub"
           >
             <svg className="w-6 h-6 sm:w-7 sm:h-7 text-black group-hover:text-white transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
@@ -70,7 +71,7 @@ export const Hero = (): JSX.Element => {
             href={socialLinks.leetcode}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-12 h-12 sm:w-14 sm:h-14 bg-white border-2 border-black rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all duration-200 shadow-lg group"
+            className="w-12 h-12 sm:w-14 sm:h-14 bg-#6e6d6b border-2 border-black rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all duration-200 shadow-lg group"
             title="LeetCode"
           >
             <svg className="w-6 h-6 sm:w-7 sm:h-7 text-black group-hover:text-white transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
@@ -84,7 +85,7 @@ export const Hero = (): JSX.Element => {
             href={socialLinks.twitter}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-12 h-12 sm:w-14 sm:h-14 bg-white border-2 border-black rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all duration-200 shadow-lg group"
+            className="w-12 h-12 sm:w-14 sm:h-14 bg-#6e6d6b border-2 border-black rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all duration-200 shadow-lg group"
             title="X (Twitter)"
           >
             <svg className="w-5 h-5 sm:w-6 sm:h-6 text-black group-hover:text-white transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
@@ -97,7 +98,7 @@ export const Hero = (): JSX.Element => {
             href={socialLinks.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-12 h-12 sm:w-14 sm:h-14 bg-white border-2 border-black rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all duration-200 shadow-lg group"
+            className="w-12 h-12 sm:w-14 sm:h-14 bg-#6e6d6b border-2 border-black rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all duration-200 shadow-lg group"
             title="LinkedIn"
           >
             <svg className="w-6 h-6 sm:w-7 sm:h-7 text-black group-hover:text-white transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
@@ -108,9 +109,7 @@ export const Hero = (): JSX.Element => {
       </main>
 
       {/* Footer - Responsive */}
-      <footer className="w-full bg-white border-t border-[#dfdeda] py-3 sm:py-4 px-4 sm:px-8 text-center text-[#6e6d6b] text-xs sm:text-sm">
-        © {new Date().getFullYear()} Rohit — Backend Developer.
-      </footer>
+      <Footer/>
     </div>
   );
 };

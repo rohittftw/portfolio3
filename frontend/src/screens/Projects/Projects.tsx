@@ -4,6 +4,7 @@ import { useAnalytics } from "../../hooks/useAnalytics";
 import { usePageTracking } from '../../hooks/usePageTracking';
 import { getProjects, ProjectData } from "../../lib/api";
 import { Navbar } from "../../components/ui/Navbar";
+import { Footer } from "../../components/ui/Footer";
 
 interface Pagination {
   currentPage: number;
@@ -205,9 +206,7 @@ export const Projects = (): JSX.Element => {
       </main>
 
       {/* Footer - Responsive */}
-      <footer className="w-full bg-white border-t border-[#dfdeda] py-3 sm:py-4 px-4 sm:px-8 text-center text-[#6e6d6b] text-xs sm:text-sm">
-        © {new Date().getFullYear()} Rohit — Backend Developer.
-      </footer>
+     <Footer/>
     </div>
   );
 };

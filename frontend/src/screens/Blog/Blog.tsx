@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { getPublishedBlogs, BlogData } from "../../lib/api";
 import { Navbar } from '../../components/ui/Navbar';
+import { Footer } from "../../components/ui/Footer";
 
 // Interfaces for Pagination and Blog API Response
 interface Pagination {
@@ -281,14 +282,7 @@ export const Blog = (): JSX.Element => {
       </main>
 
       {/* Enhanced Footer */}
-      <footer className="w-full bg-white border-t border-[#dfdeda] py-6 px-4 sm:px-8 text-center">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-[#6e6d6b] text-sm [font-family:'Lexend_Deca',Helvetica]">
-            © {new Date().getFullYear()} Rohit — Backend Developer
-          </p>
-          <div className="w-12 h-px bg-[#dfdeda] mx-auto mt-3"></div>
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 };
