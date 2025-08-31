@@ -1,21 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Navbar } from "../../components/ui/Navbar";
+import resume from '../../public/Resume_Rohit_Dhawadkar.pdf';
 
 export const Resume = (): JSX.Element => {
   return (
     <div className="flex flex-col min-h-screen bg-[#f4f2ee]">
       {/* Navbar - Responsive */}
-      <nav className="w-full bg-white border-b border-[#dfdeda] py-3 sm:py-4 px-4 sm:px-8 flex items-center justify-between">
-        <div className="text-xl sm:text-2xl font-bold [font-family:'Lexend_Deca',Helvetica] text-[#3b3a39]">
-          BackendDev
-        </div>
-        <div className="flex gap-3 sm:gap-6 text-sm sm:text-base">
-          <a href="/" className="text-[#3b3a39] font-medium hover:underline">Home</a>
-          <Link to="/projects" className="text-[#3b3a39] font-medium hover:underline">Projects</Link>
-          <Link to="/blogs" className="text-[#3b3a39] font-medium hover:underline">Blogs</Link>
-          <Link to="/resume" className="text-[#3b3a39] font-medium underline">Resume</Link>
-        </div>
-      </nav>
+      <Navbar/>
 
       {/* Resume Section - Mobile optimized */}
       <main className="flex-1 flex flex-col items-center px-4 sm:px-6 lg:px-4 py-8 sm:py-12">
@@ -67,31 +59,15 @@ export const Resume = (): JSX.Element => {
             {/* Mobile: Shorter height, Desktop: Taller */}
             <div className="h-[500px] sm:h-[700px] lg:h-[800px] flex items-center justify-center bg-gray-50">
               {/* Placeholder content - Replace with actual PDF embed */}
-              <div className="text-center p-6">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#3b3a39] rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg sm:text-xl font-semibold text-[#3b3a39] mb-2">
-                  Resume Preview
-                </h3>
-                <p className="text-sm sm:text-base text-[#6e6d6b] mb-4 max-w-md mx-auto leading-relaxed">
-                  Your resume will be embedded here. You can use an iframe, PDF.js, or another PDF viewer.
-                </p>
-                <p className="text-xs sm:text-sm text-[#b0afad]">
-                  Click the buttons above to download or view in full screen
-                </p>
-              </div>
 
-              {/* Example of how to embed a PDF (uncomment and replace with your PDF URL) */}
-              {/*
+
+
               <iframe
-                src="/path-to-your-resume.pdf#toolbar=0&navpanes=0&scrollbar=0"
+                src={resume}
                 className="w-full h-full border-0"
                 title="Resume PDF"
               />
-              */}
+
             </div>
           </div>
 

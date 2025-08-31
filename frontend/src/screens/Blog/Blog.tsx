@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { getPublishedBlogs, BlogData } from "../../lib/api";
+import { Navbar } from '../../components/ui/Navbar';
 
 // Interfaces for Pagination and Blog API Response
 interface Pagination {
@@ -67,170 +68,226 @@ export const Blog = (): JSX.Element => {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f4f2ee]">
-      {/* Navbar - Responsive */}
-      <nav className="w-full bg-white border-b border-[#dfdeda] py-3 sm:py-4 px-4 sm:px-8 flex items-center justify-between">
-        <div className="text-xl sm:text-2xl font-bold [font-family:'Lexend_Deca',Helvetica] text-[#3b3a39]">
-          BackendDev
-        </div>
-        <div className="flex gap-3 sm:gap-6 text-sm sm:text-base">
-          <a href="/" className="text-[#3b3a39] font-medium hover:underline">Home</a>
-          <Link to="/projects" className="text-[#3b3a39] font-medium hover:underline">Projects</Link>
-          <Link to="/blogs" className="text-[#3b3a39] font-medium hover:underline">Blogs</Link>
-          <Link to="/resume" className="text-[#3b3a39] font-medium hover:underline">Resume</Link>
-        </div>
-      </nav>
+      <Navbar />
 
-      <main className="flex-1 flex flex-col items-center px-4 sm:px-6 lg:px-4 py-8 sm:py-12">
-        {/* Page Title - Responsive */}
-        <h1 className="text-3xl sm:text-4xl font-bold [font-family:'Lexend_Deca',Helvetica] text-[#3b3a39] mb-6 sm:mb-8 text-center">
-          Blog
-        </h1>
+      <main className="flex-1 flex flex-col items-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        {/* Page Header with subtle animation */}
+        <div className="text-center mb-10 sm:mb-14">
+          <h1 className="text-4xl sm:text-5xl font-bold [font-family:'Lexend_Deca',Helvetica] text-[#3b3a39] mb-4">
+            Blog
+          </h1>
+          <div className="w-20 h-1 bg-[#3b3a39] mx-auto rounded-full"></div>
+          <p className="text-[#6e6d6b] text-lg sm:text-xl mt-4 max-w-2xl mx-auto [font-family:'Lexend_Deca',Helvetica] font-light">
+            Thoughts, tutorials, and insights about backend development
+          </p>
+        </div>
 
-        {/* Loading and Error States - Mobile friendly */}
+        {/* Loading State with better animation */}
         {loading && (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3b3a39] mr-3"></div>
-            <p className="text-[#6e6d6b] text-sm sm:text-base">Loading blogs...</p>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#dfdeda] border-t-[#3b3a39]"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#3b3a39] animate-pulse"></div>
+            </div>
+            <p className="text-[#6e6d6b] text-base mt-4 [font-family:'Lexend_Deca',Helvetica]">Loading amazing content...</p>
           </div>
         )}
 
+        {/* Enhanced Error State */}
         {error && (
-          <div className="w-full max-w-4xl mb-6">
-            <p className="text-red-600 text-center text-sm sm:text-base bg-red-50 p-3 rounded-lg border border-red-200">
-              {error}
-            </p>
+          <div className="w-full max-w-4xl mb-8">
+            <div className="bg-red-50 border-l-4 border-red-400 p-6 rounded-r-lg">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-red-700 font-medium [font-family:'Lexend_Deca',Helvetica]">{error}</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Blog List - Responsive layout */}
+        {/* Enhanced Blog Cards Grid */}
         {!loading && !error && (
-          <div className="w-full max-w-4xl space-y-6 sm:space-y-8">
+          <div className="w-full max-w-6xl">
             {blogs.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-[#6e6d6b] text-lg mb-4">No blog posts found.</p>
-                <p className="text-[#b0afad] text-sm">Check back later for new content!</p>
+              <div className="text-center py-16">
+                <div className="mb-6">
+                  <svg className="mx-auto h-16 w-16 text-[#dfdeda]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-[#3b3a39] mb-2 [font-family:'Lexend_Deca',Helvetica]">No blog posts yet</h3>
+                <p className="text-[#6e6d6b] [font-family:'Lexend_Deca',Helvetica]">Check back later for new content!</p>
               </div>
             ) : (
-              blogs.map(blog => (
-                <article
-                  key={blog.blog_id}
-                  className="bg-white rounded-xl p-4 sm:p-6 border border-[#dfdeda] shadow hover:shadow-lg transition-shadow"
-                >
-                  {/* Mobile: Stack vertically, Desktop: Side by side */}
-                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                    {/* Featured Image - Responsive sizing */}
+              <div className="flex flex-col items-center gap-6 sm:gap-8">
+                {blogs.map((blog, index) => (
+                  <article
+                    key={blog.blog_id}
+                    className="group bg-white rounded-2xl overflow-hidden border border-[#dfdeda] shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 w-full max-w-2xl"
+                  >
+                    {/* Featured Image with overlay effect */}
                     {blog.featured_image && (
-                      <div className="flex-shrink-0 w-full sm:w-48">
+                      <div className="relative overflow-hidden h-48 sm:h-56">
                         <img
                           src={blog.featured_image}
                           alt={blog.title}
-                          className="w-full h-48 sm:w-48 sm:h-32 object-cover rounded-lg border border-[#dfdeda]"
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
+                            target.parentElement?.classList.add('hidden');
                           }}
                         />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       </div>
                     )}
 
-                    {/* Content - Responsive typography */}
-                    <div className="flex-1 flex flex-col">
+                    {/* Card Content */}
+                    <div className="p-6 sm:p-8">
+                      {/* Tags - Improved styling */}
+                      {blog.tags && blog.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {blog.tags.slice(0, 2).map((tag, tagIndex) => (
+                            <span
+                              key={tagIndex}
+                              className="bg-[#3b3a39] text-white px-3 py-1 rounded-full text-xs font-medium tracking-wide"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                          {blog.tags.length > 2 && (
+                            <span className="text-[#b0afad] text-xs self-center font-medium">
+                              +{blog.tags.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Title with better typography */}
                       <Link to={`/blog/${blog.slug}`}>
-                        <h2 className="text-xl sm:text-2xl font-semibold mb-3 text-[#3b3a39] hover:text-[#232221] cursor-pointer transition-colors leading-tight">
+                        <h2 className="text-xl sm:text-2xl font-bold mb-4 text-[#3b3a39] group-hover:text-[#232221] transition-colors leading-tight [font-family:'Lexend_Deca',Helvetica] line-clamp-2">
                           {blog.title}
                         </h2>
                       </Link>
 
+                      {/* Excerpt with better spacing */}
                       {blog.excerpt && (
-                        <p className="text-[#6e6d6b] mb-4 flex-1 leading-relaxed text-sm sm:text-base line-clamp-3 sm:line-clamp-none">
+                        <p className="text-[#6e6d6b] mb-6 leading-relaxed text-sm sm:text-base [font-family:'Lexend_Deca',Helvetica] font-light line-clamp-3">
                           {blog.excerpt}
                         </p>
                       )}
 
-                      {/* Tags - Mobile optimized */}
-                      {blog.tags && blog.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          {blog.tags.slice(0, 3).map((tag, index) => (
-                            <span
-                              key={index}
-                              className="bg-[#f4f2ee] text-[#3b3a39] px-2 py-1 rounded-full text-xs font-medium"
-                            >
-                              #{tag}
-                            </span>
-                          ))}
-                          {blog.tags.length > 3 && (
-                            <span className="text-[#b0afad] text-xs self-center">
-                              +{blog.tags.length - 3} more
-                            </span>
-                          )}
+                      {/* Meta info and Read More - Enhanced design */}
+                      <div className="flex items-center justify-between pt-4 border-t border-[#f4f2ee]">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2 text-xs text-[#b0afad] [font-family:'Lexend_Deca',Helvetica]">
+                            <span className="font-medium">By {blog.author}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-[#b0afad] [font-family:'Lexend_Deca',Helvetica]">
+                            <span>{formatDate(blog.publishedAt || blog.createdAt)}</span>
+                            {blog.read_time && (
+                              <>
+                                <span>•</span>
+                                <span>{blog.read_time} min read</span>
+                              </>
+                            )}
+                          </div>
                         </div>
-                      )}
 
-                      {/* Meta info - Mobile optimized */}
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-                        <div className="flex items-center gap-2 text-xs sm:text-sm text-[#b0afad] order-2 sm:order-1">
-                          <span>By {blog.author}</span>
-                          <span>•</span>
-                          <span>{formatDate(blog.publishedAt || blog.createdAt)}</span>
-                          {blog.read_time && (
-                            <>
-                              <span>•</span>
-                              <span>{blog.read_time} min read</span>
-                            </>
-                          )}
-                        </div>
                         <Link
                           to={`/blog/${blog.slug}`}
-                          className="text-sm sm:text-sm text-[#3b3a39] font-medium hover:underline transition-all self-start sm:self-auto order-1 sm:order-2"
+                          className="inline-flex items-center gap-2 bg-[#3b3a39] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#232221] transition-all duration-200 [font-family:'Lexend_Deca',Helvetica] group-hover:translate-x-1"
                         >
-                          Read More →
+                          Read More
+                          <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
                         </Link>
                       </div>
                     </div>
-                  </div>
-                </article>
-              ))
+                  </article>
+                ))}
+              </div>
             )}
           </div>
         )}
 
-        {/* Pagination - Mobile optimized */}
+        {/* Enhanced Pagination */}
         {pagination && pagination.totalPages > 1 && !loading && (
-          <div className="w-full max-w-4xl mt-6 sm:mt-8 flex justify-center items-center gap-3 sm:gap-4 px-4">
+          <div className="w-full max-w-4xl mt-12 flex justify-center items-center gap-4 px-4">
             <button
               disabled={!pagination.hasPrev}
               onClick={() => goToPage(pagination.currentPage - 1)}
-              className={`px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base min-h-[40px] sm:min-h-[44px] ${
+              className={`group flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-200 text-sm font-medium [font-family:'Lexend_Deca',Helvetica] ${
                 pagination.hasPrev
-                  ? 'bg-[#3b3a39] text-white hover:bg-[#232221]'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? 'bg-white text-[#3b3a39] border-2 border-[#3b3a39] hover:bg-[#3b3a39] hover:text-white shadow-sm hover:shadow-md'
+                  : 'bg-[#f4f2ee] text-[#b0afad] cursor-not-allowed border-2 border-[#dfdeda]'
               }`}
             >
-              Prev
+              <svg className={`w-4 h-4 transition-transform ${pagination.hasPrev ? 'group-hover:-translate-x-1' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Previous
             </button>
 
-            <span className="text-[#3b3a39] font-medium text-sm sm:text-base text-center min-w-[120px] sm:min-w-[140px]">
-              Page {pagination.currentPage} of {pagination.totalPages}
-            </span>
+            <div className="flex items-center gap-3">
+              {/* Page numbers with dots for large page counts */}
+              {pagination.totalPages <= 7 ? (
+                // Show all page numbers if 7 or fewer
+                Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(pageNum => (
+                  <button
+                    key={pageNum}
+                    onClick={() => goToPage(pageNum)}
+                    className={`w-10 h-10 rounded-lg transition-all duration-200 text-sm font-medium [font-family:'Lexend_Deca',Helvetica] ${
+                      pageNum === pagination.currentPage
+                        ? 'bg-[#3b3a39] text-white shadow-md'
+                        : 'bg-white text-[#3b3a39] border border-[#dfdeda] hover:border-[#3b3a39] hover:shadow-sm'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ))
+              ) : (
+                // Simplified pagination for many pages
+                <div className="bg-white px-4 py-2 rounded-lg border border-[#dfdeda] shadow-sm">
+                  <span className="text-[#3b3a39] font-medium text-sm [font-family:'Lexend_Deca',Helvetica]">
+                    Page {pagination.currentPage} of {pagination.totalPages}
+                  </span>
+                </div>
+              )}
+            </div>
 
             <button
               disabled={!pagination.hasNext}
               onClick={() => goToPage(pagination.currentPage + 1)}
-              className={`px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base min-h-[40px] sm:min-h-[44px] ${
+              className={`group flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-200 text-sm font-medium [font-family:'Lexend_Deca',Helvetica] ${
                 pagination.hasNext
-                  ? 'bg-[#3b3a39] text-white hover:bg-[#232221]'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? 'bg-white text-[#3b3a39] border-2 border-[#3b3a39] hover:bg-[#3b3a39] hover:text-white shadow-sm hover:shadow-md'
+                  : 'bg-[#f4f2ee] text-[#b0afad] cursor-not-allowed border-2 border-[#dfdeda]'
               }`}
             >
               Next
+              <svg className={`w-4 h-4 transition-transform ${pagination.hasNext ? 'group-hover:translate-x-1' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </div>
         )}
       </main>
 
-      {/* Footer - Responsive */}
-      <footer className="w-full bg-white border-t border-[#dfdeda] py-3 sm:py-4 px-4 sm:px-8 text-center text-[#6e6d6b] text-xs sm:text-sm">
-        © {new Date().getFullYear()} Rohit — Backend Developer.
+      {/* Enhanced Footer */}
+      <footer className="w-full bg-white border-t border-[#dfdeda] py-6 px-4 sm:px-8 text-center">
+        <div className="max-w-4xl mx-auto">
+          <p className="text-[#6e6d6b] text-sm [font-family:'Lexend_Deca',Helvetica]">
+            © {new Date().getFullYear()} Rohit — Backend Developer
+          </p>
+          <div className="w-12 h-px bg-[#dfdeda] mx-auto mt-3"></div>
+        </div>
       </footer>
     </div>
   );

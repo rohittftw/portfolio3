@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAnalytics } from "../../hooks/useAnalytics";
 import { usePageTracking } from '../../hooks/usePageTracking';
 import { getProjects, ProjectData } from "../../lib/api";
+import { Navbar } from "../../components/ui/Navbar";
 
 interface Pagination {
   currentPage: number;
@@ -87,17 +88,7 @@ export const Projects = (): JSX.Element => {
   return (
     <div className="flex flex-col min-h-screen bg-[#f4f2ee]">
       {/* Navbar - Responsive */}
-      <nav className="w-full bg-white border-b border-[#dfdeda] py-3 sm:py-4 px-4 sm:px-8 flex items-center justify-between">
-        <div className="text-xl sm:text-2xl font-bold [font-family:'Lexend_Deca',Helvetica] text-[#3b3a39]">
-          BackendDev
-        </div>
-        <div className="flex gap-3 sm:gap-6 text-sm sm:text-base">
-          <a href="/" className="text-[#3b3a39] font-medium hover:underline">Home</a>
-          <a href="/projects" className="text-[#3b3a39] font-medium underline">Projects</a>
-          <a href="/blogs" className="text-[#3b3a39] font-medium hover:underline">Blogs</a>
-          <Link to="/resume" className="text-[#3b3a39] font-medium hover:underline">Resume</Link>
-        </div>
-      </nav>
+      <Navbar/>
 
       <main className="flex-1 flex flex-col items-center px-4 sm:px-6 lg:px-4 py-8 sm:py-12">
         {/* Page Title - Responsive */}
