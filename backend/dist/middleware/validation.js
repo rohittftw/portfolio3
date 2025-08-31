@@ -14,21 +14,37 @@ function formatZodError(error) {
         message: err.message,
     }));
 }
+// Helper function to safely check if an object has keys
+function hasKeys(obj) {
+    return obj && typeof obj === 'object' && Object.keys(obj).length > 0;
+}
+// Generic validation middleware
 // Generic validation middleware
 function validateSchema(schema) {
     return (req, res, next) => {
         try {
-            // Validate request body, params, and query
-            const validationData = {
-                ...(Object.keys(req.body).length > 0 && { body: req.body }),
-                ...(Object.keys(req.params).length > 0 && { params: req.params }),
-                ...(Object.keys(req.query).length > 0 && { query: req.query }),
-            };
+            // Safely validate request body, params, and query
+            const validationData = {};
+            if (hasKeys(req.body)) {
+                validationData.body = req.body;
+            }
+            if (hasKeys(req.params)) {
+                validationData.params = req.params;
+            }
+            if (hasKeys(req.query)) {
+                validationData.query = req.query;
+            }
+            // Debug logging
+            console.log('Validation data:', JSON.stringify(validationData, null, 2));
+            console.log('Route:', req.route?.path);
+            console.log('URL:', req.url);
+            console.log('Params:', req.params);
             schema.parse(validationData);
             next();
         }
         catch (error) {
             if (error instanceof zod_1.ZodError) {
+                console.error('Validation error details:', error.errors);
                 const validationErrors = formatZodError(error);
                 return res.status(400).json({
                     msg: "Validation failed",
@@ -44,7 +60,8 @@ function validateSchema(schema) {
 function validateBody(schema) {
     return (req, res, next) => {
         try {
-            schema.parse(req.body);
+            const body = req.body || {};
+            schema.parse(body);
             next();
         }
         catch (error) {
@@ -64,7 +81,8 @@ function validateBody(schema) {
 function validateParams(schema) {
     return (req, res, next) => {
         try {
-            schema.parse(req.params);
+            const params = req.params || {};
+            schema.parse(params);
             next();
         }
         catch (error) {
@@ -84,7 +102,8 @@ function validateParams(schema) {
 function validateQuery(schema) {
     return (req, res, next) => {
         try {
-            schema.parse(req.query);
+            const query = req.query || {};
+            schema.parse(query);
             next();
         }
         catch (error) {
@@ -204,7 +223,7 @@ exports.blogSchemas = {
             published: zod_2.z.enum(["true", "false"]).optional(),
             tag: zod_2.z.string().optional(),
             search: zod_2.z.string().optional(),
-        }),
+        }).optional(),
     }),
 };
 // Project validation schemas
@@ -279,7 +298,7 @@ exports.projectSchemas = {
             technology: zod_2.z.string().optional(),
             featured: zod_2.z.enum(["true", "false"]).optional(),
             search: zod_2.z.string().optional(),
-        }),
+        }).optional(),
     }),
     // Project reorder
     reorder: zod_2.z.object({
@@ -291,3 +310,13 @@ exports.projectSchemas = {
         }),
     }),
 };
+// Blog query parameters - make it more flexible for GET requests
+query: zod_2.z.object({
+    query: zod_2.z.object({
+        page: zod_2.z.string().regex(/^\d+$/, "Page must be a valid number").optional(),
+        limit: zod_2.z.string().regex(/^\d+$/, "Limit must be a valid number").optional(),
+        published: zod_2.z.enum(["true", "false"]).optional(),
+        tag: zod_2.z.string().optional(),
+        search: zod_2.z.string().optional(),
+    }).optional(),
+}).optional();

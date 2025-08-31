@@ -151,23 +151,38 @@ async function GetPublishedBlogs(req, res) {
     }
 }
 // Get single blog by ID
-async function GetBlogById(req, res) {
-    const { blog_id } = req.params;
+// Fix GetBlogById - change blog_id to id
+async function GetBlogById(req, // Changed from blog_id to id
+res) {
+    const { id } = req.params; // Changed from blog_id to id
+    console.log('=== GetBlogById called ===');
+    console.log('ID parameter received:', id);
+    console.log('Type of ID:', typeof id);
     try {
-        const blogId = parseInt(blog_id);
+        const blogId = parseInt(id); // Changed from blog_id to id
+        console.log('Parsed blogId:', blogId);
+        console.log('Is NaN?', isNaN(blogId));
         if (isNaN(blogId)) {
+            console.log('❌ Invalid blog ID, returning 400');
             return res.status(400).json({ msg: "Invalid blog ID" });
         }
+        console.log('✅ Searching for blog with blog_id:', blogId);
         const blog = await prisma_1.prisma.blog.findUnique({
-            where: { blog_id: blogId }
+            where: { blog_id: blogId } // Keep this as blog_id (database field)
         });
+        console.log('Blog found:', !!blog);
+        if (blog) {
+            console.log('Blog details:', { id: blog.blog_id, title: blog.title });
+        }
         if (!blog) {
+            console.log('❌ Blog not found, returning 404');
             return res.status(404).json({ msg: "Blog not found" });
         }
+        console.log('✅ Returning blog successfully');
         return res.status(200).json({ blog });
     }
     catch (error) {
-        console.error("Error fetching blog:", error);
+        console.error("❌ Error fetching blog:", error);
         return res.status(500).json({ msg: "Internal server error" });
     }
 }
@@ -193,11 +208,12 @@ async function GetBlogBySlug(req, res) {
     }
 }
 // Update blog
-async function UpdateBlog(req, res) {
-    const { blog_id } = req.params;
+async function UpdateBlog(req, // Changed from blog_id to id
+res) {
+    const { id } = req.params; // Changed from blog_id to id
     const updateData = req.body;
     try {
-        const blogId = parseInt(blog_id);
+        const blogId = parseInt(id);
         if (isNaN(blogId)) {
             return res.status(400).json({ msg: "Invalid blog ID" });
         }
@@ -221,11 +237,9 @@ async function UpdateBlog(req, res) {
         const dataToUpdate = { ...updateData };
         if (updateData.published !== undefined) {
             if (updateData.published && !existingBlog.published) {
-                // Publishing for the first time
                 dataToUpdate.publishedAt = new Date();
             }
             else if (!updateData.published) {
-                // Unpublishing
                 dataToUpdate.publishedAt = null;
             }
         }
@@ -244,26 +258,39 @@ async function UpdateBlog(req, res) {
     }
 }
 // Delete blog
+// Delete blog - fix to use 'id' parameter instead of 'blog_id'
 async function DeleteBlog(req, res) {
-    const { blog_id } = req.params;
+    const { id } = req.params;
+    console.log('=== DeleteBlog Function Called ===');
+    console.log('Raw ID parameter:', id);
+    console.log('Type of ID:', typeof id);
     try {
-        const blogId = parseInt(blog_id);
+        const blogId = parseInt(id);
+        console.log('Parsed blog ID:', blogId);
+        console.log('Is NaN?', isNaN(blogId));
         if (isNaN(blogId)) {
+            console.log('❌ Invalid blog ID - returning 400');
             return res.status(400).json({ msg: "Invalid blog ID" });
         }
+        console.log('✅ Blog ID is valid, checking if blog exists...');
         const existingBlog = await prisma_1.prisma.blog.findUnique({
             where: { blog_id: blogId }
         });
+        console.log('Existing blog found:', existingBlog ? 'YES' : 'NO');
+        console.log('Blog details:', existingBlog);
         if (!existingBlog) {
+            console.log('❌ Blog not found - returning 404');
             return res.status(404).json({ msg: "Blog not found" });
         }
+        console.log('✅ Blog exists, proceeding to delete...');
         await prisma_1.prisma.blog.delete({
             where: { blog_id: blogId }
         });
+        console.log('✅ Blog deleted successfully');
         return res.status(200).json({ msg: "Blog deleted successfully" });
     }
     catch (error) {
-        console.error("Error deleting blog:", error);
+        console.error("❌ Error deleting blog:", error);
         return res.status(500).json({ msg: "Internal server error" });
     }
 }

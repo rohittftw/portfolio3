@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { usePageTracking } from '../../hooks/usePageTracking';
-
+import pfp from "../../public/pfp.png"; 
 // To adjust the profile picture's position, change the objectPosition value below.
 // For example: 'center', 'top', 'bottom', 'left', 'right', 'center top', etc.
 const PROFILE_PIC_OBJECT_POSITION = "top";
@@ -39,7 +39,7 @@ export const Hero = (): JSX.Element => {
       <main className="flex-1 flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-4">
         {/* Profile Picture - Responsive sizing */}
         <img
-        src="/src/public/pfp.png"
+        src={pfp}
           alt="Rohit's Profile"
           className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-4 border-black shadow mb-6 sm:mb-8 mt-8 sm:mt-12 object-cover"
           style={{

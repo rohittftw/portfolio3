@@ -1,9 +1,8 @@
 // API configuration
-import dotenv from "dotenv";
-import axios from 'axios';
-dotenv.config();
 
-const API_BASE_URL = process.env.API_BASE_URL;
+import axios from 'axios';
+
+const API_BASE_URL = "https://rohitdhawadkar.in/api";
 // Admin user interface
 interface Admin {
   admin_id: string;
@@ -272,7 +271,7 @@ export const createBlog = async (
   }
 ) => {
   const token = localStorage.getItem('authToken');
-  const response = await fetch(`${API_BASE_URL}/createBlog`, {
+  const response = await fetch(`${API_BASE_URL}/blogs/createBlog`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -327,7 +326,7 @@ export const updateBlog = async (
 // Delete blog
 export const deleteBlog = async (id: number) => {
   const token = localStorage.getItem('authToken');
-  const response = await fetch(`${API_BASE_URL}blogs/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/blogs/${id}`, {
     method: "DELETE",
     headers: {
       "Authorization": `Bearer ${token}`,
