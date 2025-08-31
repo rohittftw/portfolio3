@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAnalytics } from '../../hooks/useAnalytics';
-import { getBlogs, BlogData } from "../../lib/api";
+import { getPublishedBlogs, BlogData } from "../../lib/api";
 
 // Interfaces for Pagination and Blog API Response
 interface Pagination {
@@ -27,7 +27,9 @@ export const Blog = (): JSX.Element => {
   // Function to fetch blogs from the API
   const fetchBlogs = async (pageNum: number = 1) => {
     try {
-      const data: BlogApiResponse = await getBlogs();
+      setLoading(true);
+      setError(null);
+      const data: BlogApiResponse = await getPublishedBlogs(pageNum, 10);
       setBlogs(data.blogs);
       setPagination(data.pagination);
     } catch (err) {
@@ -51,12 +53,16 @@ export const Blog = (): JSX.Element => {
   // Function to handle page navigation
   const goToPage = (page: number) => {
     if (page < 1 || page > (pagination?.totalPages || 1)) return; // Prevent invalid page
-
-    setLoading(true);
-    setError(null);
-
-    // Call fetchBlogs for the new page
     fetchBlogs(page);
+  };
+
+  // Format date helper
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -83,9 +89,11 @@ export const Blog = (): JSX.Element => {
         {/* Loading and Error States - Mobile friendly */}
         {loading && (
           <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3b3a39] mr-3"></div>
             <p className="text-[#6e6d6b] text-sm sm:text-base">Loading blogs...</p>
           </div>
         )}
+
         {error && (
           <div className="w-full max-w-4xl mb-6">
             <p className="text-red-600 text-center text-sm sm:text-base bg-red-50 p-3 rounded-lg border border-red-200">
@@ -95,62 +103,108 @@ export const Blog = (): JSX.Element => {
         )}
 
         {/* Blog List - Responsive layout */}
-        <div className="w-full max-w-4xl space-y-6 sm:space-y-8">
-          {blogs.map(blog => (
-            <article
-              key={blog.id}
-              className="bg-white rounded-xl p-4 sm:p-6 border border-[#dfdeda] shadow hover:shadow-lg transition-shadow"
-            >
-              {/* Mobile: Stack vertically, Desktop: Side by side */}
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                {/* Featured Image - Responsive sizing */}
-                {blog.featured_image && (
-                  <div className="flex-shrink-0 w-full sm:w-48">
-                    <img
-                      src={blog.featured_image}
-                      alt={blog.title}
-                      className="w-full h-48 sm:w-48 sm:h-32 object-cover rounded-lg border border-[#dfdeda]"
-                    />
-                  </div>
-                )}
-
-                {/* Content - Responsive typography */}
-                <div className="flex-1 flex flex-col">
-                  <Link to={`/blog/${blog.slug}`}>
-                    <h2 className="text-xl sm:text-2xl font-semibold mb-3 text-[#3b3a39] hover:text-[#232221] cursor-pointer transition-colors leading-tight">
-                      {blog.title}
-                    </h2>
-                  </Link>
-
-                  <p className="text-[#6e6d6b] mb-4 flex-1 leading-relaxed text-sm sm:text-base line-clamp-3 sm:line-clamp-none">
-                    {blog.excerpt}
-                  </p>
-
-                  {/* Meta info - Mobile optimized */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-                    <span className="text-xs sm:text-sm text-[#b0afad] order-2 sm:order-1">
-                      {blog.createdAt ? new Date(blog.createdAt).toLocaleDateString() : ''}
-                    </span>
-                    <Link
-                      to={`/blog/${blog.slug}`}
-                      className="text-sm sm:text-sm text-[#3b3a39] font-medium hover:underline transition-all self-start sm:self-auto order-1 sm:order-2"
-                    >
-                      Read More →
-                    </Link>
-                  </div>
-                </div>
+        {!loading && !error && (
+          <div className="w-full max-w-4xl space-y-6 sm:space-y-8">
+            {blogs.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-[#6e6d6b] text-lg mb-4">No blog posts found.</p>
+                <p className="text-[#b0afad] text-sm">Check back later for new content!</p>
               </div>
-            </article>
-          ))}
-        </div>
+            ) : (
+              blogs.map(blog => (
+                <article
+                  key={blog.blog_id}
+                  className="bg-white rounded-xl p-4 sm:p-6 border border-[#dfdeda] shadow hover:shadow-lg transition-shadow"
+                >
+                  {/* Mobile: Stack vertically, Desktop: Side by side */}
+                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                    {/* Featured Image - Responsive sizing */}
+                    {blog.featured_image && (
+                      <div className="flex-shrink-0 w-full sm:w-48">
+                        <img
+                          src={blog.featured_image}
+                          alt={blog.title}
+                          className="w-full h-48 sm:w-48 sm:h-32 object-cover rounded-lg border border-[#dfdeda]"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    {/* Content - Responsive typography */}
+                    <div className="flex-1 flex flex-col">
+                      <Link to={`/blog/${blog.slug}`}>
+                        <h2 className="text-xl sm:text-2xl font-semibold mb-3 text-[#3b3a39] hover:text-[#232221] cursor-pointer transition-colors leading-tight">
+                          {blog.title}
+                        </h2>
+                      </Link>
+
+                      {blog.excerpt && (
+                        <p className="text-[#6e6d6b] mb-4 flex-1 leading-relaxed text-sm sm:text-base line-clamp-3 sm:line-clamp-none">
+                          {blog.excerpt}
+                        </p>
+                      )}
+
+                      {/* Tags - Mobile optimized */}
+                      {blog.tags && blog.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {blog.tags.slice(0, 3).map((tag, index) => (
+                            <span
+                              key={index}
+                              className="bg-[#f4f2ee] text-[#3b3a39] px-2 py-1 rounded-full text-xs font-medium"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                          {blog.tags.length > 3 && (
+                            <span className="text-[#b0afad] text-xs self-center">
+                              +{blog.tags.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Meta info - Mobile optimized */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+                        <div className="flex items-center gap-2 text-xs sm:text-sm text-[#b0afad] order-2 sm:order-1">
+                          <span>By {blog.author}</span>
+                          <span>•</span>
+                          <span>{formatDate(blog.publishedAt || blog.createdAt)}</span>
+                          {blog.read_time && (
+                            <>
+                              <span>•</span>
+                              <span>{blog.read_time} min read</span>
+                            </>
+                          )}
+                        </div>
+                        <Link
+                          to={`/blog/${blog.slug}`}
+                          className="text-sm sm:text-sm text-[#3b3a39] font-medium hover:underline transition-all self-start sm:self-auto order-1 sm:order-2"
+                        >
+                          Read More →
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+        )}
 
         {/* Pagination - Mobile optimized */}
-        {pagination && (
+        {pagination && pagination.totalPages > 1 && !loading && (
           <div className="w-full max-w-4xl mt-6 sm:mt-8 flex justify-center items-center gap-3 sm:gap-4 px-4">
             <button
               disabled={!pagination.hasPrev}
               onClick={() => goToPage(pagination.currentPage - 1)}
-              className="px-3 sm:px-4 py-2 bg-black text-white rounded-lg  transition-colors text-sm sm:text-base min-h-[40px] sm:min-h-[44px]"
+              className={`px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base min-h-[40px] sm:min-h-[44px] ${
+                pagination.hasPrev
+                  ? 'bg-[#3b3a39] text-white hover:bg-[#232221]'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
             >
               Prev
             </button>
@@ -162,7 +216,11 @@ export const Blog = (): JSX.Element => {
             <button
               disabled={!pagination.hasNext}
               onClick={() => goToPage(pagination.currentPage + 1)}
-              className="px-3 sm:px-4 py-2 bg-black text-white rounded-lg transition-colors text-sm sm:text-base min-h-[40px] sm:min-h-[44px]"
+              className={`px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base min-h-[40px] sm:min-h-[44px] ${
+                pagination.hasNext
+                  ? 'bg-[#3b3a39] text-white hover:bg-[#232221]'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
             >
               Next
             </button>

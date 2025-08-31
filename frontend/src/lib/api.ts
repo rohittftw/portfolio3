@@ -1,10 +1,13 @@
 // API configuration
-export const API_BASE_URL = "/api";
+import dotenv from "dotenv";
 import axios from 'axios';
+dotenv.config();
+
+const API_BASE_URL = process.env.API_BASE_URL;
 // Admin user interface
 interface Admin {
- admin_id: string;
- username: string;
+  admin_id: string;
+  username: string;
 }
 
 interface Pagination {
@@ -14,10 +17,29 @@ interface Pagination {
   hasNext: boolean;
   hasPrev: boolean;
 }
+
+// Updated BlogData interface to match backend
+export interface BlogData {
+  blog_id: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  featured_image?: string;
+  published: boolean;
+  tags: string[];
+  author: string;
+  read_time?: number;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt?: string;
+}
+
 interface BlogApiResponse {
   blogs: BlogData[];
   pagination: Pagination;
 }
+
 // API utility function
 export const apiRequest = async <T>(
   endpoint: string,
@@ -65,17 +87,16 @@ export const adminAuth = {
   // Clear admin session
   clearAdmin: (): void => {
     localStorage.removeItem("admin");
+    localStorage.removeItem("authToken");
   },
 
   // Check if user is logged in
   isLoggedIn: (): boolean => {
-    return adminAuth.getCurrentAdmin() !== null;
+    return adminAuth.getCurrentAdmin() !== null && localStorage.getItem("authToken") !== null;
   },
 };
 
-// API functions
-// Login function
-
+// Auth API functions
 interface LoginResponse {
   msg: string;
   admin: Admin;
@@ -83,43 +104,36 @@ interface LoginResponse {
   expiresIn: string;
 }
 
-interface ErrorResponse {
-  message: string;
-  statusCode?: number;
-}
-
-  export const loginAdmin = async (username: string, password: string): Promise<LoginResponse> => {
-    try {
-      const response = await axios.post<LoginResponse>(
-        '/api/admin/login', // Relative path if using proxy
-        { username, password },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          withCredentials: true // For cookies if using them
-        }
-      );
-
-      // Store token securely (don't use localStorage for production)
-      localStorage.setItem('authToken', response.data.token);
-
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        // Handle 4xx/5xx errors
-        const serverError = error.response?.data as { error?: string };
-        throw new Error(serverError?.error || 'Login failed');
+export const loginAdmin = async (username: string, password: string): Promise<LoginResponse> => {
+  try {
+    const response = await axios.post<LoginResponse>(
+      `${API_BASE_URL}/admin/login`,
+      { username, password },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
       }
-      throw new Error('Network error');
-    }
-  };
+    );
 
-// Logout function (client-side)
+    // Store token and admin data
+    localStorage.setItem('authToken', response.data.token);
+    adminAuth.setAdmin(response.data.admin);
+
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const serverError = error.response?.data as { error?: string };
+      throw new Error(serverError?.error || 'Login failed');
+    }
+    throw new Error('Network error');
+  }
+};
+
+// Logout function
 export const logoutAdmin = (): void => {
   adminAuth.clearAdmin();
-  // You could also make an API call here if you have a logout endpoint
-  // apiRequest("/admin/logout", { method: "POST" });
 };
 
 // Create admin function
@@ -130,79 +144,11 @@ export const createAdmin = async (username: string, password: string) => {
   });
 };
 
-// Additional admin API functions
-export const updateAdmin = async (adminId: number, username: string, password: string) => {
-  return apiRequest<{ msg: string }>(`/admin/${adminId}`, {
-    method: "PUT",
-    body: JSON.stringify({ username, password }),
-  });
-};
+// Blog API Functions
 
-export const deleteAdmin = async (adminId: number) => {
-  return apiRequest<{ msg: string }>(`/admin/${adminId}`, {
-    method: "DELETE",
-  });
-};
-
-// Define BlogCreateRequest interface
-interface BlogCreateRequest {
-  title: string;
-  slug: string;
-  content: string;
-  excerpt?: string;
-  featured_image?: string;
-  published?: boolean;
-  tags?: string[];
-  author?: string;
-  read_time?: number;
-}
-
-// The actual createBlog function which expects an object with blog data
-export const createBlog = async (
-  blogData: {
-    title: string;
-    slug: string;
-    content: string;
-    excerpt?: string;
-    featured_image?: string;
-    published?: boolean;
-    tags?: string[];
-    author?: string;
-    read_time?: number;
-  },
-  jwtToken: string
-) => {
-  const response = await fetch("/api/blogs/createBlog", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${jwtToken}`,
-    },
-    body: JSON.stringify(blogData),
-  });
-
-  const data = await response.json();
-  return data;
-};
-
-export interface BlogData {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  featured_image?: string;
-  content?: string;
-  published?: boolean;
-  tags?: string[];
-  author?: string;
-  read_time?: number;
-  createdAt?: string;
-}
-
-
-
-export const getBlogs = async (): Promise<BlogApiResponse> => {
-  const response = await fetch("/api/blogs/getPublishedBlogs", {
+// Get published blogs (public)
+export const getPublishedBlogs = async (page: number = 1, limit: number = 10): Promise<BlogApiResponse> => {
+  const response = await fetch(`${API_BASE_URL}/blogs/getPublishedBlogs?page=${page}&limit=${limit}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });
@@ -215,9 +161,88 @@ export const getBlogs = async (): Promise<BlogApiResponse> => {
   return data;
 };
 
+// Get all blogs (admin only)
+export const getAllBlogs = async (page: number = 1, limit: number = 10): Promise<BlogApiResponse> => {
+  const token = localStorage.getItem('authToken');
+  const response = await fetch(`${API_BASE_URL}/blogs/get-all-blogs?page=${page}&limit=${limit}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+  });
 
-export const getBlogById = async (id: string) => {
-  const response = await fetch(`api/blogs/${id}`, {
+  if (!response.ok) {
+    throw new Error("Failed to fetch blogs");
+  }
+
+  const data: BlogApiResponse = await response.json();
+  return data;
+};
+
+// Get blog by ID (admin only)
+// Get blog by ID (admin only) - with enhanced debugging
+export const getBlogById = async (id: number): Promise<BlogData> => {
+  console.log('=== getBlogById called ===');
+  console.log('ID parameter:', id);
+
+  const token = localStorage.getItem('authToken');
+  console.log('Auth token exists:', !!token);
+  console.log('Token preview:', token ? token.substring(0, 20) + '...' : 'null');
+
+  if (!token) {
+    throw new Error("Authentication required. Please log in.");
+  }
+
+  const url = `${API_BASE_URL}/blogs/${id}`;
+  console.log('Making request to:', url);
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+
+    console.log('Response received:');
+    console.log('- Status:', response.status);
+    console.log('- Status Text:', response.statusText);
+    console.log('- Content-Type:', response.headers.get('content-type'));
+    console.log('- Response OK:', response.ok);
+
+    // Get the raw text first to see what we're actually receiving
+    const responseText = await response.text();
+    console.log('Raw response text:', responseText.substring(0, 500)); // First 500 chars
+
+    // Try to parse as JSON
+    let data;
+    try {
+      data = JSON.parse(responseText);
+      console.log('✅ Successfully parsed JSON:', data);
+    } catch (parseError) {
+      console.error('❌ Failed to parse JSON:', parseError);
+      console.error('Full response text:', responseText);
+      throw new Error(`Server returned non-JSON response: ${response.status} ${response.statusText}`);
+    }
+
+    if (!response.ok) {
+      throw new Error(data.msg || `Failed to fetch blog: ${response.status}`);
+    }
+
+    console.log('✅ Returning blog data:', data.blog);
+    return data.blog;
+  } catch (error) {
+    console.error('❌ getBlogById error:', error);
+    throw error;
+  }
+};
+
+
+// Get blog by slug (public)
+export const getBlogBySlug = async (slug: string): Promise<BlogData> => {
+  const response = await fetch(`${API_BASE_URL}/blogs/slug/${slug}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -229,10 +254,45 @@ export const getBlogById = async (id: string) => {
   }
 
   const data = await response.json();
+  return data.blog;
+};
+
+// Create blog
+export const createBlog = async (
+  blogData: {
+    title: string;
+    slug: string;
+    content: string;
+    excerpt?: string;
+    featured_image?: string;
+    published?: boolean;
+    tags?: string[];
+    author?: string;
+    read_time?: number;
+  }
+) => {
+  const token = localStorage.getItem('authToken');
+  const response = await fetch(`${API_BASE_URL}/createBlog`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify(blogData),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.msg || "Failed to create blog");
+  }
+
   return data;
 };
+
+// Update blog
 export const updateBlog = async (
-  id: string,
+  id: number,
   updatedData: {
     title?: string;
     slug?: string;
@@ -243,49 +303,72 @@ export const updateBlog = async (
     tags?: string[];
     author?: string;
     read_time?: number;
-  },
-  jwtToken: string
+  }
 ) => {
-  const response = await fetch(`/api/blogs/${id}`, {
-    method: "PUT", // or PATCH depending on backend
+  const token = localStorage.getItem('authToken');
+  const response = await fetch(`${API_BASE_URL}/blogs/${id}`, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${jwtToken}`,
+      "Authorization": `Bearer ${token}`,
     },
     body: JSON.stringify(updatedData),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    throw new Error("Failed to update blog");
+    throw new Error(data.msg || "Failed to update blog");
   }
 
-  const data = await response.json();
   return data;
 };
-export const deleteBlog = async (id: string, jwtToken: string) => {
-  const response = await fetch(`api/blogs/${id}`, {
+
+// Delete blog
+export const deleteBlog = async (id: number) => {
+  const token = localStorage.getItem('authToken');
+  const response = await fetch(`${API_BASE_URL}blogs/${id}`, {
     method: "DELETE",
     headers: {
-      "Authorization": `Bearer ${jwtToken}`,
+      "Authorization": `Bearer ${token}`,
     },
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    throw new Error("Failed to delete blog");
+    throw new Error(data.msg || "Failed to delete blog");
   }
 
-  const data = await response.json();
   return data;
 };
 
+// Get blog tags
+export const getBlogTags = async (): Promise<string[]> => {
+  const response = await fetch(`${API_BASE_URL}/blogs/tags`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
 
+  if (!response.ok) {
+    throw new Error("Failed to fetch tags");
+  }
+
+  const data = await response.json();
+  return data.tags;
+};
+
+// Legacy function for backward compatibility
+export const getBlogs = getPublishedBlogs;
+
+// Project-related interfaces and functions
 enum ProjectStatus {
   IN_PROGRESS,
   COMPLETED,
   ARCHIVED
 }
 
-export interface ProjectData{
+export interface ProjectData {
   title: string;
   slug: string;
   description: string;
@@ -299,18 +382,20 @@ export interface ProjectData{
   featured?: boolean;
   order_index?: number;
 }
+
 interface ProjectApiResponse {
-  blogs: ProjectData[];
+  projects: ProjectData[];
   pagination: Pagination;
 }
+
 export const getProjects = async (): Promise<ProjectApiResponse> => {
-  const response = await fetch("/api/projects/GetAllProjects", {
+  const response = await fetch(`${API_BASE_URL}/projects/GetAllProjects`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });
 
   if (!response.ok) {
-    throw new Error(`Error fetching blogs: ${response.status}`);
+    throw new Error(`Error fetching projects: ${response.status}`);
   }
 
   const data: ProjectApiResponse = await response.json();

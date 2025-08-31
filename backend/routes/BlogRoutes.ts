@@ -23,38 +23,44 @@ function asyncHandler(fn: any) {
 
 // Public routes (no authentication required)
 router.get("/getPublishedBlogs",
-
+  validateSchema(blogSchemas.query),
   asyncHandler(GetPublishedBlogs)
 );
+
 router.get("/tags", asyncHandler(GetBlogTags));
-router.get("/slug/:slug$",
+
+router.get("/slug/:slug",
   validateSchema(blogSchemas.bySlug),
   asyncHandler(GetBlogBySlug)
 );
 
 // Protected admin routes (authentication required)
 router.post("/createBlog",
-  // authenticateAdmin,
+  authenticateAdmin,
   validateSchema(blogSchemas.create),
   asyncHandler(CreateBlog)
 );
+
 router.get("/get-all-blogs",
   authenticateAdmin,
   validateSchema(blogSchemas.query),
   asyncHandler(GetAllBlogs)
 );
-router.get("/:id$",
+
+router.get("/:id",
   authenticateAdmin,
   validateSchema(blogSchemas.byId),
   asyncHandler(GetBlogById)
 );
-router.put("/:id$",
+
+router.put("/:id",
   authenticateAdmin,
   validateSchema(blogSchemas.update),
   asyncHandler(UpdateBlog)
 );
-router.delete("/:id$",
-  // authenticateAdmin,
+
+router.delete("/:id",
+  authenticateAdmin,
   validateSchema(blogSchemas.byId),
   asyncHandler(DeleteBlog)
 );

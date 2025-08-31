@@ -1,4 +1,5 @@
-import express, { Request, Response, NextFunction } from "express"; // Added NextFunction
+import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
 import AdminRoutes from "../routes/AdminRoutes";
 import { metricsMiddleware, portfolioMetrics } from "../middleware/metrics";
 import AnalyticsRoutes from "../routes/AnalyticsRoutes";
@@ -7,51 +8,39 @@ import ProjectRoutes from "../routes/ProjectRoutes";
 
 const app = express();
 
-
+// CORS configuration
 const allowedOrigins = [
-  'https://rohitdhawadkar.in'
+  'https://rohitdhawadkar.in',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173'
 ];
 
+// Use the cors middleware (this handles OPTIONS automatically)
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-
-
-  console.log('Incoming origin:', origin);
-
-  if (origin && allowedOrigins.some(allowed => {
-    try {
-      const url = new URL(origin);
-      return allowedOrigins.includes(url.origin);
-    } catch {
-      return false;
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      console.log('Blocked origin:', origin);
+      return callback(new Error('Not allowed by CORS'));
     }
-  })) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Vary', 'Origin'); // Important for caching
-  }
-  next();
-});
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
+}));
 
-
-app.options(/^\/(api\/.*)?$/, (req, res) => {
-  const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'false');
-  }
-  res.sendStatus(204);
-});
-
+// Parse JSON bodies
 app.use(express.json());
+
+// Add metrics middleware
 app.use(metricsMiddleware);
 
-
+// Routes
 app.get("/metrics", (req: Request, res: Response) => {
   try {
     res.json(portfolioMetrics.getMetrics());
@@ -66,12 +55,17 @@ app.use("/api/analytics", AnalyticsRoutes);
 app.use("/api/blogs", BlogRoutes);
 app.use("/api/projects", ProjectRoutes);
 
-
+// Error handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
+// Health check endpoint
+app.get('/health', (req: Request, res: Response) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 app.listen(3000, () => {
-  console.log(`Server running on port 3000`);
+  console.log(`Server running on http://localhost:3000`);
 });
