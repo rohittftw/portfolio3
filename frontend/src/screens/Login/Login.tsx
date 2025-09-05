@@ -95,19 +95,15 @@ export const Login = (): JSX.Element => {
       );
 
       // Check if token exists in the response and store it
-      if (response.token) {
-        localStorage.setItem("jwtToken", response.token); // Store the token
-      }
 
-      if (response.admin) {
-        // Store admin data using the auth utility
-        adminAuth.setAdmin(response.admin);
+
+
 
         // Redirect to admin dashboard
-        navigate("/admin", { replace: true });
-      } else {
-        setError("Login failed. Invalid response from server.");
-      }
+        if(response.msg==='Login successful'){
+          navigate("/admin", { replace: true });
+        }
+
     } catch (err) {
       console.error("Login error:", err);
       if (err instanceof Error) {

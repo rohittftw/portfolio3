@@ -1,141 +1,174 @@
-import { Request, Response, NextFunction } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { prisma } from "../controller/prisma";
 
-// Extend Request interface to include admin user info
-declare global {
-  namespace Express {
-    interface Request {
-      admin?: {
-        admin_id: number;
-        username: string;
-      };
-    }
-  }
-}
 
-// JWT Secret - In production, this should be in environment variables
+const app = express();
+
+
+// Extend Request interface
+// declare global {
+//   namespace Express {
+//     interface Request {
+//       admin?: {
+//         admin_id: number;
+//         username: string;
+//       };
+//     }
+//   }
+// }
+
+
+interface AuthenticatedRequest extends Request{
+  admin?: {
+    admin_id: number;
+    username: string;
+  };
+}
 const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production";
 
-// Parse JWT_EXPIRES_IN to handle both string and number types correctly
 const JWT_EXPIRES_IN: string | number = (() => {
   const expiresIn = process.env.JWT_EXPIRES_IN || "24h";
   return isNaN(Number(expiresIn)) ? expiresIn : Number(expiresIn);
 })();
-// If the value is a string like '24h', it's fine. If it's a numeric value, use it as seconds.
+
 export function generateToken(admin: { admin_id: number; username: string }): string {
+  console.log("Generating token for admin:", admin);
+
   const signOptions: SignOptions = {
-     // No type error now
-    issuer: 'portfolio-api',
-    audience: 'portfolio-admin'
+    issuer: "portfolio-api",
+    audience: "portfolio-admin",
+    expiresIn: JWT_EXPIRES_IN as any,
   };
 
-  return jwt.sign(
+  const token = jwt.sign(
     {
       admin_id: admin.admin_id,
-      username: admin.username
+      username: admin.username,
     },
     JWT_SECRET,
     signOptions
   );
+
+  console.log("Generated JWT token:", token);
+  return token;
 }
 
-// Verify JWT token
 export function verifyToken(token: string): any {
   try {
-    return jwt.verify(token, JWT_SECRET, {
-      issuer: 'portfolio-api',
-      audience: 'portfolio-admin'
-    });
+    console.log("Verifying token:", token);
+    const decoded = jwt.verify(token, JWT_SECRET);
+    console.log("Token decoded:", decoded);
+    return decoded;
   } catch (error) {
+    console.error("Token verification failed:", error);
     return null;
   }
 }
 
-// Authentication middleware
-export async function authenticateAdmin(
-  req: Request,
-  res: Response,
+export const authenticateAdmin = (
+  req:AuthenticatedRequest,
+  res:Response,
   next: NextFunction
-): Promise<void> {
+): Response | void => {
   try {
-    const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.status(401).json({
-        msg: "Access denied. No token provided or invalid format.",
-        code: "NO_TOKEN"
-      });
-      return;
+
+    console.log("Authenticating admin...");
+
+    // Check if cookies are present at all
+    if (!req.cookies) {
+      console.warn("No cookies found in the request!");
+      return res.status(401).json({ msg: "Access denied. No cookies found." });
     }
 
-    // Extract token
-    const token = authHeader.substring(7); // Remove "Bearer " prefix
+    // Get token from cookie
+    const token = req.cookies.authToken;
+    console.log("authToken from cookie:", token);
+
+    if (!token) {
+      console.warn("No authToken cookie found");
+      return res.status(401).json({ msg: "Access denied. No token provided." });
+    }
 
     // Verify token
     const decoded = verifyToken(token);
     if (!decoded) {
-      res.status(401).json({
-        msg: "Invalid or expired token.",
-        code: "INVALID_TOKEN"
+      console.warn("Decoded token is null or invalid");
+      res.clearCookie("authToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/",
       });
-      return;
+
+      res.clearCookie("authExpiry", {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/",
+      });
+
+      return res.status(401).json({ msg: "Invalid or expired token" });
     }
 
-    // Check if admin still exists in database
-    const admin = await prisma.admin.findUnique({
-      where: { admin_id: decoded.admin_id },
-      select: { admin_id: true, username: true }
-    });
+    // Attach admin info to request
+    req.admin = {
+      admin_id: decoded.admin_id,
+      username: decoded.username,
+    };
 
-    if (!admin) {
-      res.status(401).json({
-        msg: "Admin account not found.",
-        code: "ADMIN_NOT_FOUND"
-      });
-      return;
-    }
-
-    // Add admin info to request object
-    req.admin = admin;
+    console.log("Admin authenticated:", req.admin);
     next();
   } catch (error) {
-    console.error("Authentication error:", error);
-    res.status(500).json({
-      msg: "Internal server error during authentication.",
-      code: "AUTH_ERROR"
+    console.error("Authentication middleware error:", error);
+
+    res.clearCookie("authToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
     });
+
+    res.clearCookie("authExpiry", {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+    });
+
+    return res.status(401).json({ msg: "Invalid or expired token" });
   }
-}
+};
 
-// Optional middleware to check if admin is authenticated but don't require it
-export async function optionalAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  try {
-    const authHeader = req.headers.authorization;
+// export async function optionalAuth(
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ): Promise<void> {
+//   try {
+//     console.log("Running optionalAuth middleware");
+//     const authHeader = req.headers.authorization;
+//     console.log("Authorization header:", authHeader);
 
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      const token = authHeader.substring(7);
-      const decoded = verifyToken(token);
+//     if (authHeader && authHeader.startsWith("Bearer ")) {
+//       const token = authHeader.substring(7);
+//       const decoded = verifyToken(token);
+//       if (decoded) {
+//         const admin = await prisma.admin.findUnique({
+//           where: { admin_id: decoded.admin_id },
+//           select: { admin_id: true, username: true },
+//         });
 
-      if (decoded) {
-        const admin = await prisma.admin.findUnique({
-          where: { admin_id: decoded.admin_id },
-          select: { admin_id: true, username: true }
-        });
-
-        if (admin) {
-          req.admin = admin;
-        }
-      }
-    }
-
-    next();
-  } catch (error) {
-    // Don't fail on optional auth errors, just continue without admin info
-    next();
-  }
-}
+//         if (admin) {
+//           req.admin = admin;
+//           console.log("Optional auth success - admin attached to req:", admin);
+//         }
+//       }
+//     }
+//     next();
+//   } catch (error) {
+//     console.error("optionalAuth middleware error:", error);
+//     next();
+//   }
+// }

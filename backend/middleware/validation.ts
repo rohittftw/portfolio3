@@ -298,9 +298,12 @@ export const projectSchemas = {
   // Project ID parameter
   byId: z.object({
     params: z.object({
-      id: z.string().regex(/^\d+$/, "Project ID must be a valid number"),
+      id: z.string()
+        .trim()
+        .regex(/^\d+$/, "Project ID must be a valid number"),
     }),
   }),
+
 
   // Project slug parameter
   bySlug: z.object({

@@ -2,10 +2,13 @@
 
 import axios from 'axios';
 
-const API_BASE_URL = "https://rohitdhawadkar.in/api";
+import Cookies from 'js-cookie';
+const API_BASE_URL = "http://localhost:3000/api";
+
+
 // Admin user interface
 interface Admin {
-  admin_id: string;
+  admin_id: number;
   username: string;
 }
 
@@ -84,14 +87,49 @@ export const adminAuth = {
   },
 
   // Clear admin session
-  clearAdmin: (): void => {
+  // clearAdmin:async (): Promise<any> => {
+  //   localStorage.removeItem("admin");
+  //   localStorage.removeItem("authToken");
+  //    const response = await fetch(`${API_BASE_URL}/api/admin/logout`, {
+  //     method: 'POST',
+  //     credentials: 'include', // Important for cookies
+  //   });
+  // },
+  //
+  //
+
+  clearAdmin: async (): Promise<any> => {
     localStorage.removeItem("admin");
     localStorage.removeItem("authToken");
+
+    try {
+      console.log('Attempting logout...'); // Debug log
+      const response = await fetch(`${API_BASE_URL}/admin/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      console.log('Logout response status:', response.status); // Debug log
+      console.log('Logout response ok:', response.ok); // Debug log
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Logout success:', data); // Debug log
+        return data;
+      } else {
+        const errorData = await response.json();
+        console.error('Logout failed with data:', errorData); // Debug log
+        throw new Error(`Logout failed: ${response.status} - ${errorData.msg || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Logout network error:', error); // Debug log
+      throw error;
+    }
   },
 
   // Check if user is logged in
   isLoggedIn: (): boolean => {
-    return adminAuth.getCurrentAdmin() !== null && localStorage.getItem("authToken") !== null;
+    return adminAuth.getCurrentAdmin() !== null && Cookies.authToken!== null;
   },
 };
 
@@ -117,7 +155,7 @@ export const loginAdmin = async (username: string, password: string): Promise<Lo
     );
 
     // Store token and admin data
-    localStorage.setItem('authToken', response.data.token);
+    console.log("Login response:", response.data);
     adminAuth.setAdmin(response.data.admin);
 
     return response.data;
@@ -131,8 +169,24 @@ export const loginAdmin = async (username: string, password: string): Promise<Lo
 };
 
 // Logout function
-export const logoutAdmin = (): void => {
-  adminAuth.clearAdmin();
+export const logoutAdmin = async (): Promise<void> => {
+  try {
+    await adminAuth.clearAdmin();
+    console.log('Logout successful');
+    // Handle success (redirect, show message, etc.)
+  } catch (error) {
+    console.error('Logout failed:', error);
+
+    // Still clear local state even if server logout fails
+    localStorage.removeItem("admin");
+    localStorage.removeItem("authToken");
+
+    // You might still want to redirect user to login page
+    // window.location.href = '/login';
+
+    // Or show an error message but continue with logout
+    throw error; // Re-throw if you want calling component to handle it
+  }
 };
 
 // Create admin function
@@ -162,12 +216,16 @@ export const getPublishedBlogs = async (page: number = 1, limit: number = 10): P
 
 // Get all blogs (admin only)
 export const getAllBlogs = async (page: number = 1, limit: number = 10): Promise<BlogApiResponse> => {
-  const token = localStorage.getItem('authToken');
+  // const token = localStorage.getItem('authToken');
+
+
   const response = await fetch(`${API_BASE_URL}/blogs/get-all-blogs?page=${page}&limit=${limit}`, {
     method: "GET",
+    credentials: 'include',
     headers: {
+
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
+      // "Authorization": `Bearer ${token}`,
     },
   });
 
@@ -185,13 +243,13 @@ export const getBlogById = async (id: number): Promise<BlogData> => {
   console.log('=== getBlogById called ===');
   console.log('ID parameter:', id);
 
-  const token = localStorage.getItem('authToken');
-  console.log('Auth token exists:', !!token);
-  console.log('Token preview:', token ? token.substring(0, 20) + '...' : 'null');
+  // const token = localStorage.getItem('authToken');
+  // console.log('Auth token exists:', !!token);
+  // console.log('Token preview:', token ? token.substring(0, 20) + '...' : 'null');
 
-  if (!token) {
-    throw new Error("Authentication required. Please log in.");
-  }
+  // if (!token) {
+  //   throw new Error("Authentication required. Please log in.");
+  // }
 
   const url = `${API_BASE_URL}/blogs/${id}`;
   console.log('Making request to:', url);
@@ -199,9 +257,10 @@ export const getBlogById = async (id: number): Promise<BlogData> => {
   try {
     const response = await fetch(url, {
       method: "GET",
+      credentials:"include",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+
       },
     });
 
@@ -270,12 +329,13 @@ export const createBlog = async (
     read_time?: number;
   }
 ) => {
-  const token = localStorage.getItem('authToken');
+
   const response = await fetch(`${API_BASE_URL}/blogs/createBlog`, {
     method: "POST",
+    credentials:"include",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
+
     },
     body: JSON.stringify(blogData),
   });
@@ -304,12 +364,13 @@ export const updateBlog = async (
     read_time?: number;
   }
 ) => {
-  const token = localStorage.getItem('authToken');
+
   const response = await fetch(`${API_BASE_URL}/blogs/${id}`, {
     method: "PUT",
+    credentials:"include",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
+
     },
     body: JSON.stringify(updatedData),
   });
@@ -325,11 +386,12 @@ export const updateBlog = async (
 
 // Delete blog
 export const deleteBlog = async (id: number) => {
-  const token = localStorage.getItem('authToken');
+  // const token = localStorage.getItem('authToken');
   const response = await fetch(`${API_BASE_URL}/blogs/${id}`, {
     method: "DELETE",
+    credentials: 'include',
     headers: {
-      "Authorization": `Bearer ${token}`,
+
     },
   });
 
@@ -359,44 +421,3 @@ export const getBlogTags = async (): Promise<string[]> => {
 
 // Legacy function for backward compatibility
 export const getBlogs = getPublishedBlogs;
-
-// Project-related interfaces and functions
-enum ProjectStatus {
-  IN_PROGRESS,
-  COMPLETED,
-  ARCHIVED
-}
-
-export interface ProjectData {
-  title: string;
-  slug: string;
-  description: string;
-  short_description?: string;
-  featured_image?: string;
-  gallery_images?: string[];
-  technologies?: string[];
-  github_url?: string;
-  live_url?: string;
-  status?: ProjectStatus;
-  featured?: boolean;
-  order_index?: number;
-}
-
-interface ProjectApiResponse {
-  projects: ProjectData[];
-  pagination: Pagination;
-}
-
-export const getProjects = async (): Promise<ProjectApiResponse> => {
-  const response = await fetch(`${API_BASE_URL}/projects/GetAllProjects`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Error fetching projects: ${response.status}`);
-  }
-
-  const data: ProjectApiResponse = await response.json();
-  return data;
-};

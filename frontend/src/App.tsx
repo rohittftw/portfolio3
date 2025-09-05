@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Login } from "./screens/Login";
 import { SignUp } from "./screens/SignUp";
-import { AdminDashboard, BlogManager, CreateBlog, EditBlog, AdminLayout, ProjectManager, CreateProject, EditProject } from "./screens/AdminDashboard";
+import { AdminDashboard, BlogManager, CreateBlog, EditBlog, AdminLayout, ProjectManager, CreateProject2, EditProject } from "./screens/AdminDashboard";
 import { Hero } from "./screens/Hero";
 import { Blog } from "./screens/Blog";
 import { BlogDetail } from "./screens/BlogDetail";
@@ -10,6 +10,8 @@ import { Projects } from "./screens/Projects";
 import { Resume } from "./screens/Resume";
 import { NotFound } from "./screens/NotFound";
 import { ProtectedRoute } from "./components/ui/ProtectedRoutes";
+
+import ViewProject from "./screens/Projects/ViewProject";
 
 export const App = (): JSX.Element => {
   return (
@@ -21,6 +23,7 @@ export const App = (): JSX.Element => {
         <Route path="/blogs" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogDetail />} />
         <Route path="/resume" element={<Resume />} />
+          <Route path="/projects/view/:id" element={<ViewProject />} />
 
         {/* Admin Auth Routes - Public */}
         <Route path="/admin/login" element={<Login />} />
@@ -40,8 +43,9 @@ export const App = (): JSX.Element => {
           <Route path="blogs/new" element={<CreateBlog />} />
           <Route path="blogs/edit/:id" element={<EditBlog />} />
           <Route path="projects" element={<ProjectManager />} />
-          <Route path="projects/new" element={<CreateProject />} />
+          <Route path="projects/new" element={<CreateProject2 />} />
           <Route path="projects/edit/:id" element={<EditProject />} />
+
         </Route>
 
         {/* 404 Page */}

@@ -46,21 +46,21 @@ router.post("/createProject",
   asyncHandler(CreateProject)
 );
 
-router.get("/:id$",
-  authenticateAdmin,
+router.get("/:id",
+  // authenticateAdmin,
   validateSchema(projectSchemas.byId),
   asyncHandler(GetProjectById)
 );
-router.put("/:id$",
+router.put("/:id",
   authenticateAdmin,
   validateSchema(projectSchemas.update),
   asyncHandler(UpdateProject)
 );
-router.delete("/:id$",
-  authenticateAdmin,
-  validateSchema(projectSchemas.byId),
-  asyncHandler(DeleteProject)
-);
+router.delete("/:id", (req, res, next) => {
+  console.log("Params at runtime:", req.params);
+  next();
+}, validateSchema(projectSchemas.byId), asyncHandler(DeleteProject));
+
 router.post("/reorder",
   authenticateAdmin,
   validateSchema(projectSchemas.reorder),

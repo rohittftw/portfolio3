@@ -1,5 +1,5 @@
 import express from "express";
-import { CreateAdmin, UpdateAdmin, deleteAdmin, GetAdminProfile, AdminLogin } from "../controller/AdminController";
+import { CreateAdmin, UpdateAdmin, deleteAdmin, GetAdminProfile, AdminLogin,AdminLogout } from "../controller/AdminController";
 import { authenticateAdmin } from "../middleware/auth";
 import { validateSchema, adminSchemas } from "../middleware/validation";
 
@@ -28,5 +28,8 @@ router.delete("/:id$",
   validateSchema(adminSchemas.delete),
   asyncHandler(deleteAdmin)
 );
+
+router.post("/logout",asyncHandler(AdminLogout));
+
 
 export default router;

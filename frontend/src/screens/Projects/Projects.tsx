@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAnalytics } from "../../hooks/useAnalytics";
 import { usePageTracking } from '../../hooks/usePageTracking';
-import { getProjects, ProjectData } from "../../lib/api";
+import { getProjects, ProjectData } from "../../lib/ProjectAPI";
 import { Navbar } from "../../components/ui/Navbar";
 import { Footer } from "../../components/ui/Footer";
+import { Eye } from "lucide-react";
 
 interface Pagination {
   currentPage: number;
@@ -116,71 +117,107 @@ export const Projects = (): JSX.Element => {
           {projects.map((project) => (
             <section
               key={project.slug}
-              className="bg-white rounded-xl p-4 sm:p-6 border border-[#dfdeda] shadow hover:shadow-lg transition-shadow flex flex-col gap-3 sm:gap-4 relative"
+              className="bg-white rounded-xl p-4 sm:p-6 border border-[#dfdeda] shadow hover:shadow-lg transition-shadow flex flex-col gap-4 sm:gap-5"
             >
-              {/* Featured Image - Responsive sizing */}
+              {/* Featured Image - Responsive sizing with click to view */}
               {project.featured_image && (
-                <img
-                  src={project.featured_image}
-                  alt={project.title}
-                  className="w-full h-40 sm:h-48 object-cover rounded-lg mb-2 sm:mb-4"
-                />
+                <Link to={`/projects/view/${project.project_id || project.id}`}>
+                  <img
+                    src={project.featured_image}
+                    alt={project.title}
+                    className="w-full h-40 sm:h-48 object-cover rounded-lg mb-2 sm:mb-3 cursor-pointer hover:opacity-90 transition-opacity"
+                  />
+                </Link>
               )}
 
-              {/* Title - Responsive typography */}
-              <h2 className="text-xl sm:text-2xl font-semibold mb-2 text-[#3b3a39] leading-tight pr-20 sm:pr-24">
-                {project.title}
-              </h2>
+              {/* Title - Responsive typography with click to view */}
+              <Link to={`/projects/view/${project.project_id || project.id}`} className="block">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-2 text-[#3b3a39] leading-tight hover:text-[#232221] transition-colors cursor-pointer">
+                  {project.title}
+                </h2>
+              </Link>
 
               {/* Description - Responsive */}
-              <p className="text-[#6e6d6b] mb-2 text-sm sm:text-base leading-relaxed pr-20 sm:pr-24">
+              <p className="text-[#6e6d6b] mb-2 text-sm sm:text-base leading-relaxed">
                 {project.description}
               </p>
 
               {/* Short Description - Mobile optimized */}
               {project.short_description && (
-                <p className="text-xs sm:text-sm text-[#b0afad] leading-relaxed pr-20 sm:pr-24">
+                <p className="text-xs sm:text-sm text-[#b0afad] leading-relaxed mb-4">
                   {project.short_description}
                 </p>
               )}
 
-              {/* Action Links - Mobile optimized positioning */}
-              <div className="absolute right-3 sm:right-4 top-3 sm:top-4 flex gap-2">
-                {/* GitHub link - Touch-friendly sizing */}
-                {project.github_url && (
-                  <a
-                    href={project.github_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 sm:w-9 sm:h-9 bg-black rounded-full flex items-center justify-center shadow-lg hover:bg-[#232221] transition-colors"
-                    title="View on GitHub"
-                  >
-                    <GitHubIcon />
-                  </a>
+              {/* Bottom section with buttons and status */}
+              <div className="flex justify-between items-center mt-auto pt-4 border-t border-[#f3f4f6]">
+                {/* Status indicator */}
+                {project.status && (
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    project.status === 'COMPLETED'
+                      ? 'bg-green-100 text-green-800'
+                      : project.status === 'IN_PROGRESS'
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {project.status === 'COMPLETED' ? 'Completed' :
+                     project.status === 'IN_PROGRESS' ? 'In Progress' :
+                     project.status === 'ARCHIVED' ? 'Archived' : project.status}
+                  </span>
                 )}
 
-                {/* Live URL link - Touch-friendly sizing */}
-                {project.live_url && (
-                  <a
-                    href={project.live_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 sm:w-9 sm:h-9 bg-black rounded-full flex items-center justify-center shadow-lg hover:bg-[#232221] transition-colors"
-                    title="View Live Project"
+                {/* Action buttons container - positioned at bottom right */}
+                <div className="flex items-center gap-3">
+                  {/* External Links */}
+                  {project.github_url && (
+                    <a
+                      href={project.github_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 sm:w-9 sm:h-9 bg-black rounded-full flex items-center justify-center shadow-lg hover:bg-[#232221] transition-colors"
+                      title="View on GitHub"
+                    >
+                      <GitHubIcon />
+                    </a>
+                  )}
+
+                  {project.live_url && (
+                    <a
+                      href={project.live_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 sm:w-9 sm:h-9 bg-black rounded-full flex items-center justify-center shadow-lg hover:bg-[#232221] transition-colors"
+                      title="View Live Project"
+                    >
+                      <VercelIcon />
+                    </a>
+                  )}
+
+                  {/* View Project Button - Primary action */}
+                  <Link
+                    to={`/projects/view/${project.project_id || project.id}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#3b3a39] text-white rounded-[180px] hover:bg-[#232221] transition-colors text-sm font-medium"
                   >
-                    <VercelIcon />
-                  </a>
-                )}
+                    <Eye size={16} />
+                    View Details
+                  </Link>
+                </div>
               </div>
-
-              {/* Mobile: Add bottom padding to prevent content overlap with action buttons */}
-              <div className="h-2 sm:h-0"></div>
             </section>
           ))}
         </div>
 
+        {/* Empty State */}
+        {!loading && projects.length === 0 && !error && (
+          <div className="w-full max-w-2xl text-center py-12">
+            <div className="text-[#b0afad] text-6xl mb-4">📁</div>
+            <h3 className="text-xl font-semibold text-[#3b3a39] mb-2">No Projects Found</h3>
+            <p className="text-[#6e6d6b]">There are no projects to display at the moment.</p>
+          </div>
+        )}
+
         {/* Pagination - Mobile optimized */}
-        {pagination && (
+        {pagination && pagination.totalPages > 1 && (
           <div className="w-full max-w-2xl mt-6 sm:mt-8 flex justify-center items-center gap-3 sm:gap-4 px-4">
             <button
               disabled={!pagination.hasPrev}

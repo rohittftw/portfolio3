@@ -278,15 +278,17 @@ export async function GetProjectsByStatus(
 
 // Get single project by ID
 export async function GetProjectById(
-  req: Request<{ project_id: string }>,
+  req: Request<{ id: string }>,
   res: Response
 ): Promise<Response> {
-  const { project_id } = req.params;
+  const { id } = req.params;
 
   try {
-    const projectId = parseInt(project_id);
+    console.log(id,"ipshcififcjhe");
+    const projectId = parseInt(id);
     if (isNaN(projectId)) {
-      return res.status(400).json({ msg: "Invalid project ID" });
+
+      return res.status(400).json({ msg: "Invalid project ID NAN" ,data:projectId});
     }
 
     const project = await prisma.project.findUnique({
@@ -334,15 +336,17 @@ export async function GetProjectBySlug(
 
 // Update project
 export async function UpdateProject(
-  req: Request<{ project_id: string }, {}, ProjectUpdateRequest>,
+  req: Request<{ id: string }, {}, ProjectUpdateRequest>,
   res: Response
 ): Promise<Response> {
-  const { project_id } = req.params;
+  const { id } = req.params;
   const updateData = req.body;
 
   try {
-    const projectId = parseInt(project_id);
+    console.log(id,"kjfbdjkfbejkfbejfbejofbeoj");
+    const projectId = parseInt(id);
     if (isNaN(projectId)) {
+      console.log(projectId,"hello tehre");
       return res.status(400).json({ msg: "Invalid project ID" });
     }
 
@@ -383,19 +387,19 @@ export async function UpdateProject(
 
 // Delete project
 export async function DeleteProject(
-  req: Request<{ project_id: string }>,
+  req: Request<{ id: string }>, // match the route `/:id`
   res: Response
 ): Promise<Response> {
-  const { project_id } = req.params;
+  const { id } = req.params;
 
   try {
-    const projectId = parseInt(project_id);
+    const projectId = parseInt(id, 10);
     if (isNaN(projectId)) {
       return res.status(400).json({ msg: "Invalid project ID" });
     }
 
     const existingProject = await prisma.project.findUnique({
-      where: { project_id: projectId }
+      where: { project_id: projectId }, // ✅ matches your schema
     });
 
     if (!existingProject) {
@@ -403,7 +407,7 @@ export async function DeleteProject(
     }
 
     await prisma.project.delete({
-      where: { project_id: projectId }
+      where: { project_id: projectId },
     });
 
     return res.status(200).json({ msg: "Project deleted successfully" });

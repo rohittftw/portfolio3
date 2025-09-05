@@ -5,9 +5,15 @@ import { metricsMiddleware, portfolioMetrics } from "../middleware/metrics";
 import AnalyticsRoutes from "../routes/AnalyticsRoutes";
 import BlogRoutes from "../routes/BlogRoutes";
 import ProjectRoutes from "../routes/ProjectRoutes";
+import testMiddlerware from "../routes/middlewareRoutes";
+import cookieParser from "cookie-parser";
+
+
 
 const app = express();
-
+// app.use(cookieParser());
+app.use(cookieParser());
+app.use(express.json());
 // CORS configuration
 const allowedOrigins = [
   'https://rohitdhawadkar.in',
@@ -15,7 +21,11 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:5173'
 ];
-
+app.use((req, res, next) => {
+  console.log('All cookies:', req.cookies);
+  console.log('Headers:', req.headers.cookie);
+  next();
+});
 // Use the cors middleware (this handles OPTIONS automatically)
 app.use(cors({
   origin: function (origin, callback) {
@@ -54,6 +64,7 @@ app.use("/api/admin", AdminRoutes);
 app.use("/api/analytics", AnalyticsRoutes);
 app.use("/api/blogs", BlogRoutes);
 app.use("/api/projects", ProjectRoutes);
+app.use("/api/m", testMiddlerware);
 
 // Error handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

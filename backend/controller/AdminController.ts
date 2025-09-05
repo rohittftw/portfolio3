@@ -3,12 +3,25 @@ import { prisma } from "./prisma";
 import bcrypt from "bcrypt";
 import { portfolioMetrics } from "../middleware/metrics";
 import { generateToken } from "../middleware/auth";
+import jwt from 'jsonwebtoken';
+
+
+
 
 interface AdminCreateReuest {
   username: string;
   password: string;
 }
 
+
+
+
+interface AuthenticatedRequest{
+  admin?: {
+    admin_id: number;
+    username: string;
+  };
+}
 export async function AdminLogin(
   req: Request<{}, {}, { username: string; password: string }>,
   res: Response
@@ -38,13 +51,31 @@ export async function AdminLogin(
       return res.status(401).json({ msg: "Invalid username or password" });
     }
 
-    // Generate JWT token
+    // Generate JWT token with 1 hour expiration
     const token = generateToken({
       admin_id: admin.admin_id,
       username: admin.username
+    }); // Make sure your generateToken function accepts expiration
+
+    // Set cookie with 1 hour expiration
+    res.cookie('authToken', token, {
+      httpOnly: true,        // Prevents XSS attacks
+      secure: false, // HTTPS only in production
+      sameSite: 'strict',    // CSRF protection
+      maxAge: 60 * 60 * 1000, // 1 hour in milliseconds
+      path: '/'              // Available across entire site
     });
 
-    // Success
+    // Also set a separate cookie for client-side expiration check (optional)
+    res.cookie('authExpiry', Date.now() + (60 * 60 * 1000), {
+      httpOnly: false,       // Accessible to client-side JS
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 1000,
+      path: '/'
+    });
+
+    // Success response (no token in response body since it's in cookie)
     portfolioMetrics.recordLoginAttempt(true);
     return res.status(200).json({
       msg: "Login successful",
@@ -52,12 +83,42 @@ export async function AdminLogin(
         admin_id: admin.admin_id,
         username: admin.username
       },
-      token,
-      expiresIn: "24h"
+      expiresIn: "1h"
     });
+
   } catch (error) {
     console.error("Login error:", error);
     portfolioMetrics.recordLoginAttempt(false);
+    return res.status(500).json({ msg: "Internal server error" });
+  }
+}
+
+export async function AdminLogout(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  try {
+    // Clear the authentication cookies
+    res.clearCookie('authToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/'
+    });
+
+    res.clearCookie('authExpiry', {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/'
+    });
+
+    return res.status(200).json({
+      msg: "Logout successful"
+    });
+
+  } catch (error) {
+    console.error("Logout error:", error);
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
@@ -224,25 +285,25 @@ export async function GetAdminProfile(
 ): Promise<Response> {
   try {
     // req.admin is set by the authenticateAdmin middleware
-    if (!req.admin) {
-      return res.status(401).json({ msg: "Authentication required" });
-    }
+    // if (!req.admin) {
+    //   return res.status(401).json({ msg: "Authentication required" });
+    // }
 
-    const admin = await prisma.admin.findUnique({
-      where: { admin_id: req.admin.admin_id },
-      select: {
-        admin_id: true,
-        username: true,
-        createdAt: true,
-        updatedAt: true
-      }
-    });
+    // const admin = await prisma.admin.findUnique({
+    //   where: { admin_id: req.id },
+    //   select: {
+    //     admin_id: true,
+    //     username: true,
+    //     createdAt: true,
+    //     updatedAt: true
+    //   }
+    // });
 
-    if (!admin) {
-      return res.status(404).json({ msg: "Admin not found" });
-    }
+    // if (!admin) {
+    //   return res.status(404).json({ msg: "Admin not found" });
+    // }
 
-    return res.status(200).json({ admin });
+    return res.status(200).json({ msg:"a"});
   } catch (error) {
     console.error("Error fetching admin profile:", error);
     return res.status(500).json({ msg: "Internal server error" });
