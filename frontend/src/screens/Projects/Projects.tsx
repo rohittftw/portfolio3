@@ -138,13 +138,12 @@ export const Projects = (): JSX.Element => {
               </Link>
 
               {/* Description - Responsive */}
-              <p className="text-[#6e6d6b] mb-2 text-sm sm:text-base leading-relaxed">
+              {/*<p className="description-content text-[#6e6d6b] mb-2 text-sm sm:text-base leading-relaxed">
                 {project.description}
-              </p>
-
+              </p>*/}
               {/* Short Description - Mobile optimized */}
               {project.short_description && (
-                <p className="text-xs sm:text-sm text-[#b0afad] leading-relaxed mb-4">
+                <p className="description-content text-xs sm:text-sm text-[#b0afad] leading-relaxed mb-4">
                   {project.short_description}
                 </p>
               )}

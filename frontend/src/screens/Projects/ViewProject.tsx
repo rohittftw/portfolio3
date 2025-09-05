@@ -146,11 +146,14 @@ export const ViewProject: React.FC = () => {
                 </div>
 
                 {project.short_description && (
-                  <p className="text-xl text-[#6b7280] mb-6">{project.short_description}</p>
+                  <p className="description-content text-xs sm:text-sm text-[#b0afad] leading-relaxed mb-4">
+                    {project.short_description}
+                  </p>
                 )}
 
                 <div className="prose max-w-none">
-                  <p className="text-[#3b3a39] text-lg leading-relaxed whitespace-pre-wrap">
+
+                  <p className="description-content text-[#6e6d6b] mb-2 text-sm sm:text-base leading-relaxed">
                     {project.description}
                   </p>
                 </div>
